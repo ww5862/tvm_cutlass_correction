@@ -277,3 +277,6 @@ gallery/how_to/work_with_microtvm/micro_tvmc.py
 
 # GDB history file
 .gdb_history
+
+#cutlass object file
+/home/local_guest/tvm/python/tvm/contrib/cutlass/tmp_cutlass/*
