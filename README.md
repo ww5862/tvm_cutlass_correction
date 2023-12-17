@@ -55,5 +55,5 @@ We learned a lot from the following projects when building TVM.
 Change
 ---------------
 Change cutlass in tvm
--  add split-k in cutlass+tvm(GEMM, Batch-GEMM)
--  prepare cutlass tailor insert
+-  add split-k in Cutlass+TVM(GEMM, Batch-GEMM)
+-  add cutlass batch gemm Oracle in TVM
