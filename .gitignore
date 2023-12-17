@@ -280,3 +280,4 @@ gallery/how_to/work_with_microtvm/micro_tvmc.py
 
 #cutlass object file
 python/tvm/contrib/cutlass/tmp_cutlass/*
+!python/tvm/contrib/cutlass/tmp_cutlass/
