@@ -305,7 +305,6 @@ def _init_api(namespace, target_module_name=None):
     target_module_name : str
        The target module name if different from namespace
     """
-    
     target_module_name = target_module_name if target_module_name else namespace
     if namespace.startswith("tvm."):
         _init_api_prefix(target_module_name, namespace[4:])
@@ -331,3 +330,4 @@ def _init_api_prefix(module_name, prefix):
         ff.__name__ = fname
         ff.__doc__ = "TVM PackedFunc %s. " % fname
         setattr(target_module, ff.__name__, ff)
+    

@@ -47,9 +47,10 @@ def get_dll_directories():
     # An installed TVM's curr_path will look something like:
     #   $PREFIX/lib/python3.6/site-packages/tvm/_ffi
     ffi_dir = os.path.dirname(os.path.realpath(os.path.expanduser(__file__)))
+
     source_dir = os.path.join(ffi_dir, "..", "..", "..")
     install_lib_dir = os.path.join(ffi_dir, "..", "..", "..", "..")
-
+    
     dll_path = []
 
     if os.environ.get("TVM_LIBRARY_PATH", None):
@@ -97,6 +98,7 @@ def find_lib_path(name=None, search_path=None, optional=False):
     """
     use_runtime = os.environ.get("TVM_USE_RUNTIME_LIB", False)
     dll_path = get_dll_directories()
+    
 
     if search_path is not None:
         if isinstance(search_path, list):

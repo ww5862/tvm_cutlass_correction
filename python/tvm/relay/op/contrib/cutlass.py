@@ -146,7 +146,7 @@ def check_batch_matmul(call):
     rhs = batch_matmul.args[1].checked_type
     transpose_a = batch_matmul.attrs.transpose_a
     transpose_b = batch_matmul.attrs.transpose_b
-    return check_dtype(lhs, rhs) and not transpose_a and transpose_b
+    return check_dtype(lhs, rhs) and not transpose_a and transpose_b #change here to get transpose_a = False, transpose_b=False
 
 
 def is_depthwise_conv2d(ic, oc, groups):

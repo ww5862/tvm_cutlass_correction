@@ -85,6 +85,7 @@ class OpAnnotator(tvm.relay.ExprVisitor):
 
     def visit_call(self, call):
         op = call.op
+
         if isinstance(op, relay.Function) and "Composite" in op.attrs:
             self.signature["op_type"] = op.attrs["Composite"]
             for i, arg in enumerate(op.params):
@@ -95,6 +96,7 @@ class OpAnnotator(tvm.relay.ExprVisitor):
             self.visit(op.body)
 
         elif isinstance(op, tvm.ir.Op) and op.name in [
+            "nn.batch_matmul",
             "nn.conv2d",
             "nn.conv2d_transpose",
             "nn.conv2d_backward_weight",
@@ -118,6 +120,7 @@ def select_gemm_kernel(
     batched,
     find_first_valid,
     use_multiprocessing,
+    batch=1,
 ):
     """Run CUTLASS profiler to select the best kernel, or return the default one for dynamic
     workloads."""
@@ -138,6 +141,7 @@ def select_gemm_kernel(
             arg1_dtype,
             use_3xtf32,
             batched=batched,
+            batch_count=batch,
             find_first_valid=find_first_valid,
             use_multiprocessing=use_multiprocessing,
         )
@@ -160,12 +164,21 @@ def handle_batch_matmul(
     use_3xtf32,
     find_first_valid,
     use_multiprocessing,
+    transpose_a = False,
+    transpose_b = True,
 ):
     """Profile and select a kernel for batch_matmul op workload."""
-    MM = arg0_shape[1]
-    KK = arg0_shape[2]
-    NN = arg1_shape[1]
+    Batch = arg0_shape[0]
     
+    if transpose_a == False and transpose_b == True:
+        MM = arg0_shape[1]
+        KK = arg0_shape[2]
+        NN = arg1_shape[1]
+    if transpose_a == False and transpose_b == False:
+        MM = arg0_shape[1]
+        KK = arg0_shape[2]
+        NN = arg1_shape[2]
+        
     # print(f"{MM}, {NN}, {KK}")
     name, cutlass_op_def, split_k = select_gemm_kernel(
         cutlass_profiler,
@@ -180,6 +193,7 @@ def handle_batch_matmul(
         True,
         find_first_valid,
         use_multiprocessing,
+        Batch,
     )
 
     return {
@@ -482,6 +496,9 @@ def tune_cutlass_function(
             )
         )
     elif "batch_matmul" in op_type:
+        new_attrs["arg0_transpose"] = annotator.op_attrs.transpose_a
+        new_attrs["arg1_transpose"] = annotator.op_attrs.transpose_b
+        
         new_attrs.update(
             handle_batch_matmul(
                 gemm_profiler,
@@ -494,6 +511,8 @@ def tune_cutlass_function(
                 use_3xtf32,
                 find_first_valid,
                 use_multiprocessing,
+                annotator.op_attrs.transpose_a,
+                annotator.op_attrs.transpose_b,
             )
         )
     elif "dense" in op_type:
@@ -599,7 +618,6 @@ def compile_for_cutlass(mod, cutlass_target):
     logger.info("Tuning for CUTLASS")
     mod, _ = tune_cutlass_kernels(mod, tmp_dir=tmp_dir, **tuning_config)
     
-
     # Compile
     logger.info("Creating CSource module for CUTLASS")
     create_c_source_module = tvm._ffi.get_global_func("relay.ext.cutlass.create_c_source_module")
