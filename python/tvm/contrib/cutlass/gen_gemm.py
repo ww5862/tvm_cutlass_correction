@@ -293,8 +293,15 @@ class CutlassGemmProfiler:
                 tile, split = gemm_profile.eval_cutlassOracle(transpose_a=transpose_a, transpose_b=transpose_b)
                 
                 #set tile description here!
+                print(f"{tile}, {split}")
                 
-                tile_descriptions = [([128, 128, 8], 2, [4, 2, 1], 1, 80, 1024)]
+                block_tile = tile[0]
+                buffer_stage = tile[2][0]
+                warp_tile = [int(tile[0][0] / tile[1][0]), int(tile[0][1] / tile[1][1]), int(tile[0][2] / tile[1][2])]
+                
+                
+                tile_descriptions  = [(block_tile, buffer_stage, warp_tile, split, 80, 1024)]
+                print(tile_descriptions)
                 
                 description_all = [
                     TileDescription(threadblock_shape, stages, warp_count, math_instruction[0], min_cc, max_cc, split_k=split_k)

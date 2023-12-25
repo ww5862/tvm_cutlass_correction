@@ -457,8 +457,12 @@ class ProfileGemm:
     def _codeGen(self, transpose_a=False, transpose_b=False, input_type="float", out_type="float"):
         real_path = os.path.dirname(__file__)
         
+        transpose = ""
+        transpose += "N" if transpose_a == True else "T"
+        transpose += "N" if transpose_b == True else "T"
+        
         dir_path = f"{real_path}/src_cutlass"
-        rlt_dir_path = f"{real_path}/rlt_cutlass"
+        rlt_dir_path = f"{real_path}/rlt_cutlass_{transpose}"
         
         template = GEMMTemplate()
         template_rlt = self.JIT(transpose_a=transpose_a, transpose_b=transpose_b, input_type=input_type, out_type=out_type, rlt_json_dir=rlt_dir_path)
@@ -493,9 +497,9 @@ class ProfileGemm:
                 os.system(exec)
     
     def eval_cutlassOracle(self, transpose_a=False, transpose_b=False, input_type="float", out_type="float"):
-        rlt_json = f"{rlt_dir}/{self.batch}_{self.M}_{self.N}_{self.K}.json"
-        
         object_file, rlt_dir = self._codeGen(transpose_a=transpose_a, transpose_b=transpose_b, input_type=input_type, out_type=out_type)
+        
+        rlt_json = f"{rlt_dir}/{self.batch}_{self.M}_{self.N}_{self.K}.json"
         
         if not os.path.exists(rlt_json):
             self._run(object_file=object_file)
