@@ -85,6 +85,8 @@ def generate_sm50_simt(
     max_cc = 1024
     if arg0_dtype == "float32" and arg1_dtype == "float32":
         assert out_dtype == "float32" and accumulator_dtype == "float32"
+        
+        
         math_instructions = [
             MathInstruction(
                 [1, 1, 1],
@@ -370,6 +372,10 @@ EPILOGUE_MAP = {
     "cutlass.dense_bias_gelu_fp16": (EpilogueFunctor.LinearCombinationGelu, False),
     "cutlass.dense_bias_gelu_fp32": (EpilogueFunctor.LinearCombinationGelu, False),
     "cutlass.batch_matmul": (EpilogueFunctor.LinearCombination, False),
+    "cutlass.batch_matmul_bias": (EpilogueFunctor.LinearCombinationBias, True),
+    "cutlass.batch_matmul_bias_relu": (EpilogueFunctor.LinearCombinationRelu, True),
+    "cutlass.batch_matmul_bias_gelu_fp32": (EpilogueFunctor.LinearCombinationGelu, False),
+    "cutlass.batch_matmul_bias_gelu_fp16": (EpilogueFunctor.LinearCombinationGelu, False),
     "cutlass.conv2d_bias_hardswish": (EpilogueFunctor.LinearCombinationHardSwish, False),
     "cutlass.conv2d_bias_silu": (EpilogueFunctor.LinearCombinationSilu, False),
     "cutlass.conv2d_bias_sigmoid": (EpilogueFunctor.LinearCombinationSigmoid, False),
@@ -480,6 +486,11 @@ def instantiate_template(func_name, annotations, func_args):
 
     arg0_shape = annotations["arg0_shape"]
     arg1_shape = annotations["arg1_shape"]
+    
+    if "arg2_shape" in annotations:
+        attrs["arg2_shape"] = list(annotations["arg2_shape"])
+    
+    
     attrs["ElementInputA"] = DataTypeTag[dtype_map[annotations["arg0_dtype"]]]
     attrs["ElementInputB"] = DataTypeTag[dtype_map[annotations["arg1_dtype"]]]
     attrs["ElementOutput"] = DataTypeTag[dtype_map[annotations["ret_dtype"]]]

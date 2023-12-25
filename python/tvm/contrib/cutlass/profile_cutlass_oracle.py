@@ -291,20 +291,26 @@ class CompareCutlass:
         self.opt_rlt = None
     
     def _iswarp(self, shared_m, shared_n, warp_m, warp_n):
-        if((shared_m / warp_m) * (shared_n / warp_n)) > 26:
+        if((shared_m / warp_m) * (shared_n / warp_n)) > 23:
             return False
         
         if (shared_m % warp_m) != 0 or (shared_n % warp_n) != 0:
+            return False
+        
+        if((shared_m / warp_m) * (shared_n / warp_n)) % 2 == 1:
             return False
         
         tmp_warp = (shared_m / warp_m) * (shared_n / warp_n) * 32
         
         # if tmp_warp < shared_m or tmp_warp < shared_n:
         #     return False
+        
+        # if tmp_warp < shared_n:
+        #     return False
         # if tmp_warp % shared_m != 0 and shared_m % tmp_warp:
         #     return False
-        # if tmp_warp % shared_n != 0 and shared_n % tmp_warp:
-        #     return False
+        if tmp_warp % shared_n != 0 and shared_n % tmp_warp:
+            return False
         
         warpNumThreadsM = 8
         
@@ -323,7 +329,7 @@ class CompareCutlass:
         laneN = min(4, ThreadTileN)
         
         paddingM = 8
-        paddingN = 8
+        paddingN = 0
         
         if paddingM % laneM != 0 or paddingN % laneN:
             return False
@@ -378,6 +384,7 @@ class CompareCutlass:
         run_cutlass = Cutlass(cutlass_file, cutlass_object_file, cutlass_op)
         run_cutlass.compile_all(opt=self.opt_rlt)
         
+        
         if (tunning_parameter is not None) and (tunning_split_k is not None):
             run_cutlass.compile(tunning_parameter)
             run_cutlass.split_k = tunning_split_k
@@ -405,8 +412,10 @@ class CompareCutlass:
         for split in range(1, 16):
             for i, value in enumerate(cutlass_array):
                 value.compile(self.opt_rlt[i])
+                # print(f"{self.opt_rlt[i]} {(self.opt_rlt[i][0][0] / self.opt_rlt[i][1][0]) * (self.opt_rlt[i][0][1] / self.opt_rlt[i][1][1])}") #{(self.opt_rlt[i][0][0] / self.opt_rlt[i][1][0]) * (self.opt_rlt[i][0][1] / self.opt_rlt[i][1][1])}
                 tunning_time = value.eval(tensorA, tensorB, tensorC, split_k = split, warmup=20, repeat=10)
                 tensorC.memSetZeroGPU()
+                print(f"{self.opt_rlt[i]}: {tunning_time}")
                 if tunning_time < 0:
                     continue
                 if fastest_time > tunning_time:
@@ -421,6 +430,7 @@ class CompareCutlass:
         tensorC.freeGPU()
         
         tensorA.resetGPU()
+        print(fastest_time)
         
         elasped_time = end_time - start_time
         return fastest_cutlass, elasped_time

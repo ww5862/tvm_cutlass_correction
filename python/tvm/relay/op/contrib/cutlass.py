@@ -58,6 +58,27 @@ def make_gemm_pattern(with_bias=True, with_act=None, out_dtype="float16"):
     assert isinstance(with_act, str) and with_act == "gelu"
     return make_gelu_pattern(gemm_out, out_dtype)
 
+def make_batch_matmul_pattern_custom(with_bias=True, with_act=None, out_dtype="float32"):
+    data = wildcard()
+    weight = wildcard()
+    bias = wildcard()
+
+    batch_gemm = is_op("nn.batch_matmul")(data, weight)
+    
+    if with_bias:
+        add_or_bias_add = is_op("add") | is_op("nn.bias_add")
+        batch_gemm_out = add_or_bias_add(batch_gemm, bias)
+    else:
+        batch_gemm_out = batch_gemm
+    
+    if with_act is None:
+        return batch_gemm_out
+    if isinstance(with_act, str) and with_act == "relu":
+        return is_op("nn.relu")(batch_gemm_out)
+    
+    assert isinstance(with_act, str) and with_act == "gelu"
+    return make_gelu_pattern(batch_gemm_out, out_dtype)
+        
 
 def make_batch_matmul_pattern():
     return is_op("nn.batch_matmul")(wildcard(), wildcard())
@@ -146,7 +167,7 @@ def check_batch_matmul(call):
     rhs = batch_matmul.args[1].checked_type
     transpose_a = batch_matmul.attrs.transpose_a
     transpose_b = batch_matmul.attrs.transpose_b
-    return check_dtype(lhs, rhs) and not transpose_a and transpose_b #change here to get transpose_a = False, transpose_b=False
+    return check_dtype(lhs, rhs) and ((not transpose_a and transpose_b) or (not transpose_a and not transpose_b))
 
 
 def is_depthwise_conv2d(ic, oc, groups):
@@ -220,14 +241,26 @@ def pattern_table():
         make_gemm_pattern(True, "gelu", out_dtype="float32"),
         check_gemm,
     )
-
+    
+    batch_matmul_pat = ("cutlass.batch_matmul", make_batch_matmul_pattern_custom(False, None), check_batch_matmul)
+    batch_matmul_bias_pat = ("cutlass.batch_matmul_bias", make_batch_matmul_pattern_custom(True, None), check_batch_matmul)
+    batch_matmul_bias_relu_pat = ("cutlass.batch_matmul_bias_relu", make_batch_matmul_pattern_custom(True, "relu"), check_batch_matmul)
+    
+    batch_matmul_gelu_fp32_pat = ("cutlass.batch_matmul_bias_gelu_fp32", make_batch_matmul_pattern_custom(True, "gelu", out_dtype="float32"), check_batch_matmul)
+    batch_matmul_gelu_fp16_pat = ("cutlass.batch_matmul_bias_gelu_fp16", make_batch_matmul_pattern_custom(True, "gelu", out_dtype="float16"), check_batch_matmul)
+    
     dense_patterns = [
         dense_bias_gelu_fp16_pat,
         dense_bias_gelu_fp32_pat,
         dense_bias_relu_pat,
         dense_bias_pat,
         dense_pat,
-        ("cutlass.batch_matmul", make_batch_matmul_pattern(), check_batch_matmul),
+        # ("cutlass.batch_matmul", make_batch_matmul_pattern(), check_batch_matmul),
+        batch_matmul_gelu_fp16_pat,
+        batch_matmul_gelu_fp32_pat,
+        batch_matmul_bias_relu_pat,
+        batch_matmul_bias_pat,
+        batch_matmul_pat,
     ]
 
     conv2d_patterns = [

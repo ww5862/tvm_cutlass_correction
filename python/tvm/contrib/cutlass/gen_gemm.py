@@ -16,7 +16,7 @@
 # under the License.
 # pylint: disable=invalid-name
 """GEMM kernel generator and profiler for CUTLASS."""
-from .profile_cutlass_oracle import CompareCutlass
+from .profile_cutlass import ProfileGemm
 from .gemm_operation import EmitGemmInstance, GemmOperation
 from .gemm_profiler import GemmProfilerEmitter
 from .gen_tensor_op import EPILOGUE_MAP, GENERATOR_FUNC_TABLE, ProfilerEngine
@@ -34,6 +34,9 @@ from .library import (
     MathOperation,
 )
 
+import json
+import os
+
 
 def create_gemm_operator_with_epilogue(
     op_type,
@@ -43,17 +46,27 @@ def create_gemm_operator_with_epilogue(
     swizzling_functor,
     split_k=1,
     batched=False,
+    transpose_a=False,
+    transpose_b=True,
 ):
     """
     Instantiate a cutlass kernel from the given configuration,
     along with the epilouge functor
     """
     element_a, element_b, element_c, element_epilogue = data_type
-
-    A = TensorDescription(element_a, LayoutType.RowMajor, alignment)
-    B = TensorDescription(element_b, LayoutType.ColumnMajor, alignment)
+    
+    if transpose_a == True:
+        A = TensorDescription(element_a, LayoutType.ColumnMajor, alignment)
+    else:
+        A = TensorDescription(element_a, LayoutType.RowMajor, alignment)
+    
+    if transpose_b == True:
+        B = TensorDescription(element_b, LayoutType.ColumnMajor, alignment)
+    else:
+        B = TensorDescription(element_b, LayoutType.RowMajor, alignment)
+    
     C = TensorDescription(element_c, LayoutType.RowMajor, alignment)
-
+    
     if batched:
         swizzling_functor = SwizzlingFunctor.Batched
 
@@ -69,7 +82,7 @@ def create_gemm_operator_with_epilogue(
         epilogue,
         swizzling_functor,
     )
-
+    
     return (
         op.procedural_name(),
         EmitGemmInstance().emit(op, no_beta_scaling=no_beta_scaling, split_k=split_k, batched=batched),
@@ -81,6 +94,8 @@ def enumerate_gemm_operators(
     data_type,
     alignment_constraints,
     swizzling_functor=SwizzlingFunctor.Identity8,
+    transpose_a=False,
+    transpose_b=True,
 ):
     """Exhaustively instantiate all kernels from a given configuration."""
     ret = []
@@ -91,16 +106,24 @@ def enumerate_gemm_operators(
 
     for tile_description in tile_descriptions:
         for alignment in alignment_constraints:
-            A = TensorDescription(element_a, LayoutType.RowMajor, alignment)
-            B = TensorDescription(element_b, LayoutType.ColumnMajor, alignment)
+            if transpose_a == True:
+                A = TensorDescription(element_a, LayoutType.ColumnMajor, alignment)
+            else:
+                A = TensorDescription(element_a, LayoutType.RowMajor, alignment)
+            
+            if transpose_b == True:
+                B = TensorDescription(element_b, LayoutType.ColumnMajor, alignment)
+            else:
+                B = TensorDescription(element_b, LayoutType.RowMajor, alignment)
+            
             C = TensorDescription(element_c, LayoutType.RowMajor, alignment)
-
+            
             if element_c == DataType.s32 and A.alignment == 1:
                 tile_description.threadblock_shape[0] = min(
-                    tile_description.threadblock_shape[0], 128
+                    tile_description.threadblock_shape[0], 1024
                 )
                 tile_description.threadblock_shape[1] = min(
-                    tile_description.threadblock_shape[1], 128
+                    tile_description.threadblock_shape[1], 1024
                 )
 
             op = GemmOperation(
@@ -122,7 +145,7 @@ def enumerate_gemm_operators(
                 DataTypeTag[element_c],
                 op.leading_dim(),
             )
-
+            
             ret.append(
                 {
                     "src": src,
@@ -220,6 +243,9 @@ class CutlassGemmProfiler:
         use_multiprocessing=False,
         batch=False,
         batch_count=1,
+        transpose_a=False,
+        transpose_b=True,
+        op_type="",
     ):
         """
         Profile and select the best kernel from candidate kernels.
@@ -232,7 +258,63 @@ class CutlassGemmProfiler:
         # TODO(masahi): CUTLASS alignment check on gemm kernels is too restrictive.
         # See https://github.com/NVIDIA/cutlass/issues/362.
         # When the above issue is resolved, we can remove the alignment check on M below.
-
+        
+        real_path = os.getcwd()
+        
+        # print(f"{op_type}: {M}, {N}, {K}")
+        # dir_path = f"{real_path}/bert_dim.json"
+        # if "batch" in op_type:
+        #     json_data = {"model": "bert-large-uncased", "op_type": str(op_type), "dim": [int(batch_count), int(M), int(N), int(K)]}
+        # else:
+        #     json_data = {"model": "bert-large-uncased", "op_type": str(op_type), "dim": [int(M), int(N), int(K)]}
+            
+        # with open(dir_path, 'a') as f:
+        #     json.dump(json_data, f)
+        #     f.write("\n")
+        
+        #insert code for oracle
+        if arg0_dtype == "float32" and arg1_dtype == "float32":
+            if out_dtype == "float32":
+                math_instruction = [
+                    MathInstruction(
+                        [1, 1, 1],
+                        DataType.f32,
+                        DataType.f32,
+                        DataType.f32,
+                        DataType.f32,
+                        OpcodeClass.Simt,
+                        MathOperation.multiply_add,
+                    ),
+                ]
+                
+                alignment_constraints = [1,]
+                
+                gemm_profile = ProfileGemm(batch=int(batch_count), M=int(M), N=int(N), K=int(K), split_k=16)
+                tile, split = gemm_profile.eval_cutlassOracle(transpose_a=transpose_a, transpose_b=transpose_b)
+                
+                #set tile description here!
+                
+                tile_descriptions = [([128, 128, 8], 2, [4, 2, 1], 1, 80, 1024)]
+                
+                description_all = [
+                    TileDescription(threadblock_shape, stages, warp_count, math_instruction[0], min_cc, max_cc, split_k=split_k)
+                    for threadblock_shape, stages, warp_count, split_k, min_cc, max_cc in tile_descriptions
+                ]
+                
+                data_dtype = [
+                    math_instruction[0].element_a,
+                    math_instruction[0].element_b,
+                    math_instruction[0].element_c,
+                    math_instruction[0].element_accumulator,
+                ]
+                
+                out_ops = enumerate_gemm_operators(description_all, data_dtype, alignment_constraints, transpose_a=transpose_a, transpose_b=transpose_b)
+                out_ops[0]["runtime"] = 0.0
+                self.cache[(M, N, K)] = out_ops[0]
+                
+                return out_ops[0]
+            #end of insert
+        
         ops = GENERATOR_FUNC_TABLE[self.sm](
             out_dtype,
             arg0_dtype,
@@ -244,55 +326,6 @@ class CutlassGemmProfiler:
             # TODO(masahi): Invesitigate when fp32 accumulation is needed for gemm
             accumlator_dtype=out_dtype,
         )
-        
-        #insert code for tailor, it is for batch gemm
-        if batch == True:
-            if arg0_dtype == "float32" and arg1_dtype == "float32":
-                if out_dtype == "float32":
-                    math_instruction = [
-                        MathInstruction(
-                            [1, 1, 1],
-                            DataType.f32,
-                            DataType.f32,
-                            DataType.f32,
-                            DataType.f32,
-                            OpcodeClass.Simt,
-                            MathOperation.multiply_add,
-                        ),
-                    ]
-                    
-                    alignment_constraints = [1,]
-                    
-                    cutlass_oracle = CompareCutlass(dim=(int(batch_count), int(M), int(N), int(K)))
-                    fastest_cutlass, _ = cutlass_oracle.tunning_cutlass()
-                    fastest_tile_descriptions = fastest_cutlass.option_dim
-                    
-                    #shared memory, pipline, warp tile, split_k, sm, thread
-                    tile_descriptions = [(fastest_tile_descriptions[0], 2, [int(fastest_tile_descriptions[0][0]/fastest_tile_descriptions[1][0]),
-                                         int(fastest_tile_descriptions[0][1]/fastest_tile_descriptions[1][1]), int(fastest_tile_descriptions[0][2]/fastest_tile_descriptions[1][2])],
-                                          fastest_cutlass.split_k, 50, 1024)]
-                    
-                    description_all = [
-                        TileDescription(threadblock_shape, stages, warp_count, math_instruction[0], min_cc, max_cc, split_k=split_k)
-                        for threadblock_shape, stages, warp_count, split_k, min_cc, max_cc in tile_descriptions
-                    ]
-                    
-                    data_dtype = [
-                        math_instruction[0].element_a,
-                        math_instruction[0].element_b,
-                        math_instruction[0].element_c,
-                        math_instruction[0].element_accumulator,
-                    ]
-                    
-                    out_ops = enumerate_gemm_operators(description_all, data_dtype, alignment_constraints)
-                    
-                    out_ops[0]["runtime"] = 0.0
-                    
-                    self.cache[(M, N, K)] = out_ops[0]
-                    
-                    return out_ops[0]
-            
-            #end of insert
 
         if not find_first_valid:
             self.engine.compile_all(ops, use_multiprocessing)
@@ -322,7 +355,9 @@ class CutlassGemmProfiler:
         find_first_valid=False,
         use_multiprocessing=False,
         batched=False,
-        batch_count = 1
+        batch_count = 1,
+        transpose_a = False,
+        transpose_b = True,
     ):
         """Profile and select the best kernel from candidate kernels.
         If find_first_valid is True, return immediately after the first applicable kernel is found.
@@ -342,8 +377,11 @@ class CutlassGemmProfiler:
             use_multiprocessing=use_multiprocessing,
             batch=batched,
             batch_count=batch_count,
+            transpose_a=transpose_a,
+            transpose_b=transpose_b,
+            op_type=op_type,
         )
-
+        
         name, opdef = create_gemm_operator_with_epilogue(
             op_type,
             op["tile_description"],
@@ -352,7 +390,8 @@ class CutlassGemmProfiler:
             op["swizzle_functor"],
             split_k=op["split_k"],
             batched=batched,
+            transpose_a=transpose_a,
+            transpose_b=transpose_b
         )
-        
 
         return name, opdef, op["runtime"], op["split_k"]

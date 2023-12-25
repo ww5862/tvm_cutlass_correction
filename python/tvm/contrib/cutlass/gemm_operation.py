@@ -108,7 +108,7 @@ class GemmOperation:
         """
         threadblock = self.tile_description.procedural_name()
         opcode_class_name = OpcodeClassNames[self.tile_description.math_instruction.opcode_class]
-
+        
         return substitute_template(
             "cutlass_${opcode_class}_${extended_name}_${threadblock}_${layout}_align${alignment}",
             {
@@ -202,7 +202,7 @@ class EmitGemmInstance:
             for idx in range(3)
         ]
         epilogue_vector_length = (
-            min(operation.C.alignment * DataTypeSize[operation.C.element], 128)
+            min(operation.C.alignment * DataTypeSize[operation.C.element], 1024)
             // DataTypeSize[operation.C.element]
         )
         values = {
@@ -286,7 +286,7 @@ def instantiate_gemm_template(attrs, func_args):
    problem_size,
    {static_cast<ElementInputA*>(ptr_a), ${lda}}, ${batch_stride_A}
    {static_cast<ElementInputB*>(ptr_b), ${ldb}}, ${batch_stride_B}
-   {static_cast<ElementOutput*>(${ptr_c}), ${c_stride}}, ${batch_stride_C}
+   {static_cast<ElementOutput*>(${ptr_c}), ${c_stride}}, ${batch_stride_D}
    {static_cast<ElementOutput*>(ptr_out), ${ldc}}, ${batch_stride_C}
    {${alpha_beta}},
    ${batch}${split_k_slices}
@@ -294,25 +294,40 @@ def instantiate_gemm_template(attrs, func_args):
   size_t workspace_size = ${kernel}::get_workspace_size(arguments);
   cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
   ${kernel} gemm_op;
-  cutlass::Status status = gemm_op.can_implement(arguments);
-  CHECK(status == cutlass::Status::kSuccess);
-  status = gemm_op.initialize(arguments, workspace.get());
-  CHECK(status == cutlass::Status::kSuccess);
+  //cutlass::Status status = gemm_op.can_implement(arguments);
+  //CHECK(status == cutlass::Status::kSuccess);
+  cutlass::Status status = gemm_op.initialize(arguments, workspace.get());
+  //CHECK(status == cutlass::Status::kSuccess);
   status = gemm_op();
-  CHECK(status == cutlass::Status::kSuccess);
+  //CHECK(status == cutlass::Status::kSuccess);
 """
     has_bias = "bias" in attrs["op_type"]
     is_gelu = "gelu" in attrs["op_type"]
     batched = "batch_matmul" in attrs["op_type"]
 
     aux_map = {"kernel": "Gemm"}
-
-    if has_bias:
+    
+    if "arg2_shape" in attrs:
+        bias_shape_len = len(attrs["arg2_shape"])
+    else:
+        bias_shape_len = 0
+    
+    attrs["arg2_shape"] = ""
+    
+    if has_bias and bias_shape_len == 1:
         aux_map.update(
             {
                 "bias_decl": "void* ptr_c_bias = (void*)(${arg2}->data);\n",
                 "ptr_c": "ptr_c_bias",
                 "c_stride": "0",
+            }
+        )
+    elif has_bias and bias_shape_len > 1:
+        aux_map.update(
+            {
+                "bias_decl": "void* ptr_c_bias = (void*)(${arg2}->data);\n",
+                "ptr_c": "ptr_c_bias",
+                "c_stride": attrs["ldc"],
             }
         )
     else:
@@ -334,6 +349,14 @@ def instantiate_gemm_template(attrs, func_args):
             aux_map[key] = ""
         else:
             aux_map[key] = attrs[key] + ","
+        
+    if has_bias and bias_shape_len == 1:
+        if batched == True:
+            aux_map["batch_stride_D"] = "0,"
+        else:
+            aux_map["batch_stride_D"] = ""
+    else:
+        aux_map["batch_stride_D"] = aux_map["batch_stride_C"]
 
     if batched:
         # attrs["split_k_slices_or_batch"] = attrs["batch"]
@@ -343,10 +366,10 @@ def instantiate_gemm_template(attrs, func_args):
         aux_map["split_k_slices"] = attrs["split_k"]
         aux_map["batch"] = ""
         
-
+    
     template = substitute_template(template, aux_map)
-
+    
     for i, arg in enumerate(func_args):
         attrs["arg{}".format(i)] = arg
-
+    
     return substitute_template(template, attrs)

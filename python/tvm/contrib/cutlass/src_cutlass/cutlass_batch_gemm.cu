@@ -20,7 +20,7 @@ float cutlass_strided_bathed_sgemm(
     float beta, int batch_count, int split_k, int warmup, int repeat
 ){
     using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
                                                     float, cutlass::layout::RowMajor,
                                                     float,
                                                     cutlass::arch::OpClassSimt,
@@ -37,6 +37,7 @@ float cutlass_strided_bathed_sgemm(
                                                     cutlass::arch::OpMultiplyAdd
                                                     >;
     Gemm gemm_op;
+    Gemm gemm_op2;
 
     Gemm::Arguments arguments{
         {m, n, k},
@@ -57,6 +58,7 @@ float cutlass_strided_bathed_sgemm(
     if(status != cutlass::Status::kSuccess) return -1;
     cudaDeviceSynchronize();
 
+    float total_time;
     cudaEvent_t start, end;
     cudaEventCreate(&start);
     cudaEventCreate(&end);
@@ -75,22 +77,45 @@ float cutlass_strided_bathed_sgemm(
 
     cudaDeviceSynchronize();
 
-    float total_time = 0.0f;
+    cudaEventRecord(start);
+    
     for(int i = 0; i < repeat; i++){
-        cudaEventRecord(start);
+        Gemm::Arguments arguments2{
+        {m, n, k},
+        {A, lda}, batch_stride_A,
+        {B, ldb}, batch_stride_B,
+        {C, ldc}, batch_stride_C,
+        {C, ldc}, batch_stride_C,
+        {alpha, beta},
+        batch_count,
+        split_k
+    };
 
-        status = gemm_op();
+    size_t workspace_size2 = gemm_op.get_workspace_size(arguments2);
+    cutlass::device_memory::allocation<uint8_t> workspace2(workspace_size2);
 
-        cudaEventRecord(end);
-        cudaEventSynchronize(end);
-        
-        float time;
-        cudaEventElapsedTime(&time, start, end);
-        total_time += time;
+    gemm_op2.initialize(arguments2, workspace2.get());
+
+    status = gemm_op2();
+    workspace2.release();
+
+    if(status != cutlass::Status::kSuccess){
+        cudaEventDestroy(start);
+        cudaEventDestroy(end);
+
+        return -1;
+        }
+
     }
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
 
     cudaEventDestroy(start);
     cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
 
     return total_time / repeat;
 
@@ -109,9 +134,8 @@ extern "C"{
         int k = d_A->column;
         int batch_count = d_A->batch;
 
-        //TN -> T
         int const lda = k;
-        int const ldb = k;
+        int const ldb = n;
         int const ldc = n;
 
         //NT -> T
@@ -121,7 +145,7 @@ extern "C"{
 
         //TN -> T
         long long int batch_stride_A = static_cast<long long int>(lda) * static_cast<long long int>(m);
-        long long int batch_stride_B = static_cast<long long int>(ldb) * static_cast<long long int>(n);
+        long long int batch_stride_B = static_cast<long long int>(ldb) * static_cast<long long int>(k);
         long long int batch_stride_C = static_cast<long long int>(ldc) * static_cast<long long int>(m);
 
         //NT -> T

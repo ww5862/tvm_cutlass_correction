@@ -52,7 +52,6 @@ def _get_cutlass_compile_options(sm, threads, use_fast_math=False):
     cutlass_root = _get_cutlass_path()
     cutlass_include = os.path.join(cutlass_root, "include")
     cutlass_util_include = os.path.join(cutlass_root, "tools/util/include")
-
     kwargs = {}
     kwargs["cc"] = "nvcc"
     kwargs["options"] = [
@@ -94,7 +93,7 @@ class OpAnnotator(tvm.relay.ExprVisitor):
             self.signature["ret_shape"] = op.ret_type.shape
             self.signature["ret_dtype"] = op.ret_type.dtype
             self.visit(op.body)
-
+            
         elif isinstance(op, tvm.ir.Op) and op.name in [
             "nn.batch_matmul",
             "nn.conv2d",
@@ -121,6 +120,8 @@ def select_gemm_kernel(
     find_first_valid,
     use_multiprocessing,
     batch=1,
+    transpose_a = False,
+    transpose_b = True,
 ):
     """Run CUTLASS profiler to select the best kernel, or return the default one for dynamic
     workloads."""
@@ -144,6 +145,8 @@ def select_gemm_kernel(
             batch_count=batch,
             find_first_valid=find_first_valid,
             use_multiprocessing=use_multiprocessing,
+            transpose_a = transpose_a,
+            transpose_b = transpose_b,
         )
         if not find_first_valid:
             logger.info("The best kernel is %s", name)
@@ -194,7 +197,11 @@ def handle_batch_matmul(
         find_first_valid,
         use_multiprocessing,
         Batch,
+        transpose_a=transpose_a,
+        transpose_b=transpose_b,
     )
+    
+    ldb = "K" if transpose_b == True else "N"
 
     return {
         "batch": arg0_shape[0],
@@ -204,7 +211,7 @@ def handle_batch_matmul(
         "cutlass_op_def": cutlass_op_def,
         "cutlass_op_name": name,
         "lda": "K",
-        "ldb": "K",
+        "ldb": ldb,
         "ldc": "N",
         "split_k": split_k,
     }

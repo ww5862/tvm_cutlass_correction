@@ -36,6 +36,7 @@ extern "C"{
         float *A = reinterpret_cast<float *>(data->p);
 
         cudaMemset(A, 0, len * sizeof(float));
+        cudaDeviceSynchronize();
     }
 
     EXPORT void verify(void *d_a, int size){
