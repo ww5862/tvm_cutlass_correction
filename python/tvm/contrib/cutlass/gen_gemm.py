@@ -120,10 +120,10 @@ def enumerate_gemm_operators(
             
             if element_c == DataType.s32 and A.alignment == 1:
                 tile_description.threadblock_shape[0] = min(
-                    tile_description.threadblock_shape[0], 1024
+                    tile_description.threadblock_shape[0], 128
                 )
                 tile_description.threadblock_shape[1] = min(
-                    tile_description.threadblock_shape[1], 1024
+                    tile_description.threadblock_shape[1], 128
                 )
 
             op = GemmOperation(
@@ -258,21 +258,6 @@ class CutlassGemmProfiler:
         # TODO(masahi): CUTLASS alignment check on gemm kernels is too restrictive.
         # See https://github.com/NVIDIA/cutlass/issues/362.
         # When the above issue is resolved, we can remove the alignment check on M below.
-        
-        real_path = os.getcwd()
-        
-        # print(f"{op_type}: {M}, {N}, {K}")
-        # dir_path = f"{real_path}/bert_dim.json"
-        # if "batch" in op_type:
-        #     json_data = {"model": "bert-large-uncased", "op_type": str(op_type), "dim": [int(batch_count), int(M), int(N), int(K)]}
-        # else:
-        #     json_data = {"model": "bert-large-uncased", "op_type": str(op_type), "dim": [int(M), int(N), int(K)]}
-            
-        # with open(dir_path, 'a') as f:
-        #     json.dump(json_data, f)
-        #     f.write("\n")
-        
-        #insert code for oracle
         if arg0_dtype == "float32" and arg1_dtype == "float32":
             if out_dtype == "float32":
                 math_instruction = [
@@ -299,9 +284,12 @@ class CutlassGemmProfiler:
                 buffer_stage = tile[2][0]
                 warp_tile = [int(tile[0][0] / tile[1][0]), int(tile[0][1] / tile[1][1]), int(tile[0][2] / tile[1][2])]
                 
+                # block_tile = [128, 128, 8]
+                # buffer_stage = 2
+                # warp_tile = [4, 2, 1]
+                # split = 1
                 
-                tile_descriptions  = [(block_tile, buffer_stage, warp_tile, split, 80, 1024)]
-                print(tile_descriptions)
+                tile_descriptions  = [(block_tile, buffer_stage, warp_tile, split, 80, 1024),]
                 
                 description_all = [
                     TileDescription(threadblock_shape, stages, warp_count, math_instruction[0], min_cc, max_cc, split_k=split_k)

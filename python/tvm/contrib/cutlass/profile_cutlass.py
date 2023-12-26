@@ -519,9 +519,10 @@ class ProfileGemm:
                 fastest_cutltass_split = value["split_k"]
                 break
         
+        print(f"{self.batch}, {self.M}, {self.N}, {self.K}")
         print(fastest_cutlass_time)
         
-        return list(fastest_cutlass_tile), fastest_cutltass_split
+        return list(fastest_cutlass_tile), int(fastest_cutltass_split)
         
         
 if __name__ == "__main__":

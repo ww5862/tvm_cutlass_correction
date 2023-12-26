@@ -292,7 +292,6 @@ class GemmBatched {
     typename EpilogueOutputOp::Params epilogue;
     int split_k_slices;
     int batch_count;
-
     //
     // Methods
     //

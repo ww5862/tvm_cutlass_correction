@@ -202,7 +202,7 @@ class EmitGemmInstance:
             for idx in range(3)
         ]
         epilogue_vector_length = (
-            min(operation.C.alignment * DataTypeSize[operation.C.element], 1024)
+            min(operation.C.alignment * DataTypeSize[operation.C.element], 128)
             // DataTypeSize[operation.C.element]
         )
         values = {
@@ -299,6 +299,7 @@ def instantiate_gemm_template(attrs, func_args):
   cutlass::Status status = gemm_op.initialize(arguments, workspace.get());
   //CHECK(status == cutlass::Status::kSuccess);
   status = gemm_op();
+  workspace.release();
   //CHECK(status == cutlass::Status::kSuccess);
 """
     has_bias = "bias" in attrs["op_type"]

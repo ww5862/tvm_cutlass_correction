@@ -49,6 +49,7 @@ def _get_cutlass_path():
 
 
 def _get_cutlass_compile_options(sm, threads, use_fast_math=False):
+    sm=86
     cutlass_root = _get_cutlass_path()
     cutlass_include = os.path.join(cutlass_root, "include")
     cutlass_util_include = os.path.join(cutlass_root, "tools/util/include")
@@ -205,9 +206,9 @@ def handle_batch_matmul(
 
     return {
         "batch": arg0_shape[0],
-        "batch_stride_A": arg0_shape[1] * arg0_shape[2],
-        "batch_stride_B": arg1_shape[1] * arg1_shape[2],
-        "batch_stride_C": arg0_shape[1] * arg1_shape[1],
+        "batch_stride_A": MM * KK,
+        "batch_stride_B": KK * NN,
+        "batch_stride_C": MM * NN,
         "cutlass_op_def": cutlass_op_def,
         "cutlass_op_name": name,
         "lda": "K",
