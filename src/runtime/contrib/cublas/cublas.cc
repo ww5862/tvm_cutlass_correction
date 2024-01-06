@@ -393,7 +393,7 @@ TVM_REGISTER_GLOBAL("tvm.contrib.cublas.batch_matmul").set_body([](TVMArgs args,
   if (TypeEqual(A->dtype, C->dtype)) {
     ICHECK(TypeMatch(A->dtype, kDLFloat, 16) || TypeMatch(A->dtype, kDLFloat, 32) ||
            TypeMatch(A->dtype, kDLFloat, 64));
-
+    // printf("I am not using tensor core!\n");
     if (TypeMatch(A->dtype, kDLFloat, 16))
       CallBatchGemm(args, ret, CublasHgemmBatchOp(entry_ptr->handle));
     else if (TypeMatch(A->dtype, kDLFloat, 32))
@@ -401,6 +401,7 @@ TVM_REGISTER_GLOBAL("tvm.contrib.cublas.batch_matmul").set_body([](TVMArgs args,
     else
       CallBatchGemm(args, ret, CublasDgemmBatchOp(entry_ptr->handle));
   } else {
+    // printf("I am using Tensor Core!\n");
     CallBatchGemmEx(args, ret, entry_ptr->handle);
   }
 });

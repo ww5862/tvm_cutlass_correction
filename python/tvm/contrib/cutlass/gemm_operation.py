@@ -366,7 +366,6 @@ def instantiate_gemm_template(attrs, func_args):
     else:
         aux_map["split_k_slices"] = attrs["split_k"]
         aux_map["batch"] = ""
-        
     
     template = substitute_template(template, aux_map)
     

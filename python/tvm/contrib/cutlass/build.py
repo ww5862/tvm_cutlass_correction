@@ -172,18 +172,38 @@ def handle_batch_matmul(
     transpose_b = True,
 ):
     """Profile and select a kernel for batch_matmul op workload."""
+    
+    #calculate Batch
     Batch = arg0_shape[0]
+    if len(arg0_shape) == 4 and len(arg1_shape) == 4:
+        Batch = arg0_shape[0] * arg0_shape[1]
+        assert (arg0_shape[0] * arg0_shape[1]) == (arg1_shape[0] * arg1_shape[1]) and ("transpose" is not op_type)
+    
+    pytorch_transpose = 1 if len(arg0_shape) > 3 else 0
     
     if transpose_a == False and transpose_b == True:
-        MM = arg0_shape[1]
-        KK = arg0_shape[2]
-        NN = arg1_shape[1]
-    if transpose_a == False and transpose_b == False:
-        MM = arg0_shape[1]
-        KK = arg0_shape[2]
-        NN = arg1_shape[2]
+        MM = arg0_shape[1 + pytorch_transpose]
+        KK = arg0_shape[2 + pytorch_transpose]
         
-    # print(f"{MM}, {NN}, {KK}")
+        if len(arg1_shape) == 4:
+            NN = arg1_shape[2]
+        elif len(arg1_shape) == 3:
+            NN = arg1_shape[1]
+        elif len(arg1_shape) == 2:
+            NN = arg1_shape[0]
+    if transpose_a == False and transpose_b == False:
+        MM = arg0_shape[1 + pytorch_transpose]
+        KK = arg0_shape[2 + pytorch_transpose]
+        
+        if len(arg1_shape) == 4:
+            NN = arg1_shape[3]
+        elif len(arg1_shape) == 3:
+            NN = arg1_shape[2]
+        elif len(arg1_shape) == 2:
+            NN = arg1_shape[1]
+    
+    # print(f"{Batch}, {MM}, {NN}, {KK}")
+    
     name, cutlass_op_def, split_k = select_gemm_kernel(
         cutlass_profiler,
         op_type,
@@ -203,12 +223,20 @@ def handle_batch_matmul(
     )
     
     ldb = "K" if transpose_b == True else "N"
+    
+    batch_stride_A = MM * KK
+    batch_stride_B = KK * NN
+    batch_stride_C = MM * NN
+    
+    if len(arg1_shape) == 2:
+        batch_stride_B = 0
+        assert "pytorch" in op_type   
 
     return {
-        "batch": arg0_shape[0],
-        "batch_stride_A": MM * KK,
-        "batch_stride_B": KK * NN,
-        "batch_stride_C": MM * NN,
+        "batch": Batch,
+        "batch_stride_A": batch_stride_A,
+        "batch_stride_B": batch_stride_B,
+        "batch_stride_C": batch_stride_C,
         "cutlass_op_def": cutlass_op_def,
         "cutlass_op_name": name,
         "lda": "K",
@@ -507,6 +535,13 @@ def tune_cutlass_function(
         new_attrs["arg0_transpose"] = annotator.op_attrs.transpose_a
         new_attrs["arg1_transpose"] = annotator.op_attrs.transpose_b
         
+        transpose_a = annotator.op_attrs.transpose_a
+        transpose_b = annotator.op_attrs.transpose_b
+        
+        if "transpose" in op_type:
+            new_attrs["arg1_transpose"] = not annotator.op_attrs.transpose_b
+            transpose_b = not annotator.op_attrs.transpose_b
+        
         new_attrs.update(
             handle_batch_matmul(
                 gemm_profiler,
@@ -519,8 +554,8 @@ def tune_cutlass_function(
                 use_3xtf32,
                 find_first_valid,
                 use_multiprocessing,
-                annotator.op_attrs.transpose_a,
-                annotator.op_attrs.transpose_b,
+                transpose_a,
+                transpose_b,
             )
         )
     elif "dense" in op_type:
@@ -630,6 +665,7 @@ def compile_for_cutlass(mod, cutlass_target):
     logger.info("Creating CSource module for CUTLASS")
     create_c_source_module = tvm._ffi.get_global_func("relay.ext.cutlass.create_c_source_module")
     c_module = create_c_source_module(mod)
+    
     return compile_cutlass_module(c_module, compile_config)
 
 

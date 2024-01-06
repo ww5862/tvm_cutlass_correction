@@ -384,6 +384,17 @@ EPILOGUE_MAP = {
     "cutlass.conv2d": (EpilogueFunctor.LinearCombination, False),
     "cutlass.conv2d_transpose": (EpilogueFunctor.LinearCombination, False),
     "cutlass.conv2d_backward_weight": (EpilogueFunctor.LinearCombination, False),
+    
+    #add for pytorch batch gemm
+    "cutlass.batch_matmul_pytorch_transpose": (EpilogueFunctor.LinearCombination, False),
+    "cutlass.batch_matmul_bias_pytorch_transpose": (EpilogueFunctor.LinearCombinationBias, True),
+    "cutlass.batch_matmul_bias_relu_pytorch_transpose": (EpilogueFunctor.LinearCombinationRelu, True),
+    "cutlass.batch_matmul_bias_gelu_fp32_pytorch_transpose": (EpilogueFunctor.LinearCombinationGelu, False),
+    
+    "cutlass.batch_matmul_pytorch": (EpilogueFunctor.LinearCombination, False),
+    "cutlass.batch_matmul_bias_pytorch": (EpilogueFunctor.LinearCombinationBias, True),
+    "cutlass.batch_matmul_bias_relu_pytorch": (EpilogueFunctor.LinearCombinationRelu, True),
+    "cutlass.batch_matmul_bias_gelu_fp32_pytorch": (EpilogueFunctor.LinearCombinationGelu, False),
 }
 
 
@@ -529,17 +540,39 @@ def instantiate_template(func_name, annotations, func_args):
     if "dense" in func_name or "matmul" in func_name:
         batched = "batch_matmul" in func_name
         batched_offset = 1 if batched else 0
+        
         attrs["K"] = str(int(arg0_shape[batched_offset + 1]))
+        if batched and len(arg0_shape) == 4:
+            attrs["K"] = str(int(arg0_shape[batched_offset + 2]))
+        
         attrs["M"] = get_dim(arg0_shape[batched_offset], func_args[0], 0, batched_offset)
+        if batched and len(arg0_shape) == 4:
+            attrs["M"] = get_dim(arg0_shape[batched_offset + 1], func_args[0], 0, batched_offset)
 
         if annotations["ldb"] == "N":
             attrs["N"] = get_dim(arg1_shape[batched_offset + 1], func_args[1], 1, batched_offset)
+            if len(arg1_shape) == 4 and batched:
+                attrs["N"] = get_dim(arg1_shape[batched_offset + 2], func_args[1], 1, batched_offset)
+            elif len(arg1_shape) == 3 and batched:
+                attrs["N"] = get_dim(arg1_shape[batched_offset + 1], func_args[1], 1, batched_offset)
+            elif len(arg1_shape) == 2 and batched:
+                attrs["N"] = get_dim(arg1_shape[batched_offset], func_args[1], 1, batched_offset)
         else:
-            attrs["N"] = get_dim(arg1_shape[batched_offset], func_args[1], 0, batched_offset)
+            attrs["N"] = get_dim(arg1_shape[batched_offset], func_args[1], 1, batched_offset)
+            if len(arg1_shape) == 4 and batched:
+                attrs["N"] = get_dim(arg1_shape[batched_offset + 1], func_args[1], 0, batched_offset)
+            elif len(arg1_shape) == 3 and batched:
+                attrs["N"] = get_dim(arg1_shape[batched_offset], func_args[1], 0, batched_offset)
+            elif len(arg1_shape) == 2 and batched:
+                attrs["N"] = get_dim(arg1_shape[0], func_args[1], 0, batched_offset)
 
         if batched:
             headers.append("cutlass/gemm/device/gemm_batched.h")
             attrs["batch"] = get_dim(arg0_shape[0], func_args[0], 0)
+            
+            if batched and len(arg0_shape) == 4:
+                attrs["batch"] = str(int(arg0_shape[0]) * int(arg0_shape[1]))
+            
             attrs["batch_stride_A"] = get_batch_stride(annotations["batch_stride_A"], 0, 0, 1, 2)
             attrs["batch_stride_B"] = get_batch_stride(annotations["batch_stride_B"], 1, 1, 1, 2)
 

@@ -145,7 +145,7 @@ float cutlass_strided_bathed_sgemm_${number}(
             {C, ldc}, batch_stride_C,
             {alpha, beta},
             batch_count,
-            split_k
+            ${split_k}
         };
         
         size_t workspace_size = gemm_op.get_workspace_size(arguments);
@@ -203,7 +203,7 @@ float cutlass_strided_bathed_sgemm_${number}(
 }
         """
     
-    def cutlass_gemm_func(self, opt_rlt=[], number=0, repeat=20, transpose_a=False, transpose_b=True, rlt_json_dir=""):
+    def cutlass_gemm_func(self, opt_rlt=[], number=0, repeat=20, transpose_a=False, transpose_b=True, rlt_json_dir="", opt_split_k="split_k"):
         shared_mem = opt_rlt[0]
         reg_mem = opt_rlt[1]
         stages = opt_rlt[2][0]
@@ -227,6 +227,8 @@ float cutlass_strided_bathed_sgemm_${number}(
         template_value["layout_1"] = "cutlass::layout::ColumnMajor" if transpose_b == True else "cutlass::layout::RowMajor"
         template_value["layout_2"] = "cutlass::layout::RowMajor"
         template_value["rlt_json_dir"] = rlt_json_dir
+        
+        template_value['split_k'] = opt_split_k
         
         template = self.substitute_template(self.function_template, template_value)
         return template
@@ -276,12 +278,13 @@ float cutlass_strided_bathed_sgemm_${number}(
         return text
     
 class ProfileGemm:
-    def __init__(self, batch=1, M=64, N=64, K=64, split_k=16):
+    def __init__(self, batch=1, M=64, N=64, K=64, split_k=16, tailor=False):
         self.batch = batch
         self.M = M
         self.N = N
         self.K = K
         self.split_k = split_k
+        self.tailor = tailor
     
     def create_cutlass_opt(self, m_shape=[], n_shape=[], k_shape=[], kstage_shape=[], alignment=1, transpose_a=False, transpose_b=False):
     # #_shape = [start, end, stride]
@@ -365,6 +368,47 @@ class ProfileGemm:
         
         return compile_option
     
+    def create_tailor_opt(self):
+        tailor_dict = {}
+        
+        real_path = os.path.dirname(__file__)
+        with open(f"{real_path}/tailor.txt", "r") as f:
+            for line in f:
+                line = line.split(' ')
+                dict_key = f"{line[6]} {line[7]} {line[8]}"
+                
+                if len(line[9]) < 4:
+                    continue
+                
+                parameter = line[9].split('_')
+                parameter_block = parameter[0].split('x')
+                parameter_block = [int(parameter_block[0]), int(parameter_block[1]), 8]
+                
+                parameter_warp = parameter[1].split("x")
+                parameter_warp = [int(parameter_warp[0]), int(parameter_warp[1]), 8]
+                
+                split_k = parameter[2]
+                split_k = split_k.replace("\n", "")
+                split_k = int(split_k) if int(split_k) > 0 else 1
+                
+                if not dict_key in tailor_dict:
+                    tailor_dict.update({dict_key: []})
+                tailor_dict[dict_key].append([[parameter_block, parameter_warp, [2], [1]], split_k])
+                # print(f"{dict_key}: {parameter_block}, {parameter_warp}, {split_k}")
+        
+        opt_rlt = []
+        opt_split_k = []
+        dict_key = f"{self.M}, {self.batch * self.N}, {self.K}]"
+        
+        if not dict_key in tailor_dict:
+            print("NONe")
+            return opt_rlt, opt_split_k
+        
+        for i, value in enumerate(tailor_dict[dict_key]):
+            opt_rlt.append(value[0])
+            opt_split_k.append(value[1])
+        return opt_rlt, opt_split_k
+        
     def JIT(self, transpose_a=False, transpose_b=False, input_type="float", out_type="float",  rlt_json_dir = ""):
         template = GEMMTemplate()
         template_rlt = []
@@ -375,13 +419,18 @@ class ProfileGemm:
         k_shape = [8, 8, 8]
         kstage = [2, 2, 1]
         
-        opt_rlt = self.create_cutlass_opt(m_shape=m_shape, n_shape=n_shape, k_shape=k_shape, kstage_shape=kstage, transpose_a=transpose_a, transpose_b=transpose_b)
+        if self.tailor == False:
+            opt_rlt = self.create_cutlass_opt(m_shape=m_shape, n_shape=n_shape, k_shape=k_shape, kstage_shape=kstage, transpose_a=transpose_a, transpose_b=transpose_b)
+            opt_split_k = []
+        else:
+            opt_rlt, opt_split_k = self.create_tailor_opt()
+            if len(opt_rlt) == 0:
+                opt_rlt = self.create_cutlass_opt(m_shape=m_shape, n_shape=n_shape, k_shape=k_shape, kstage_shape=kstage, transpose_a=transpose_a, transpose_b=transpose_b)
+                opt_split_k = []
+            else:
+                self.split_k = 1
         
-        # for i, value in enumerate(opt_rlt):
-        #     print(f"{i}: {value}")
-        
-        # assert 0 == 10
-        
+        #create template
         tmp_function_body = ""
         tmp_function_body_arr = []
         for i in range(len(opt_rlt)):
@@ -402,7 +451,12 @@ class ProfileGemm:
         cutlass_function_body = {}
         for i, value in enumerate(opt_rlt):
             func_key = f"func_{i%split_template}"
-            cutlass_function_body[func_key] = template.cutlass_gemm_func(opt_rlt=value, number=i%split_template, transpose_a=transpose_a, transpose_b=transpose_b, rlt_json_dir=rlt_json_dir)
+            
+            split_k = "split_k" if len(opt_split_k) == 0 else str(opt_split_k[i])
+            
+            cutlass_function_body[func_key] = template.cutlass_gemm_func(opt_rlt=value, number=i%split_template,
+                                                                         transpose_a=transpose_a, transpose_b=transpose_b,
+                                                                         rlt_json_dir=rlt_json_dir, opt_split_k=split_k)
             
             if (i+1) % split_template == 0:
                 template_rlt[template_rlt_index] = template.substitute_template(template_rlt[template_rlt_index], cutlass_function_body)
@@ -456,13 +510,14 @@ class ProfileGemm:
     
     def _codeGen(self, transpose_a=False, transpose_b=False, input_type="float", out_type="float"):
         real_path = os.path.dirname(__file__)
+        file_tailor = "" if self.tailor == False else "_Tailor"
         
-        transpose = ""
-        transpose += "N" if transpose_a == True else "T"
-        transpose += "N" if transpose_b == True else "T"
+        file_transpose = ""
+        file_transpose += "T" if transpose_a == False else "N"
+        file_transpose += "T" if transpose_b == False else "N"
         
-        dir_path = f"{real_path}/src_cutlass"
-        rlt_dir_path = f"{real_path}/rlt_cutlass_{transpose}"
+        dir_path = f"{real_path}/src_cutlass{file_tailor}"
+        rlt_dir_path = f"{real_path}/rlt_cutlass_{file_transpose}{file_tailor}"
         
         template = GEMMTemplate()
         template_rlt = self.JIT(transpose_a=transpose_a, transpose_b=transpose_b, input_type=input_type, out_type=out_type, rlt_json_dir=rlt_dir_path)
@@ -473,20 +528,17 @@ class ProfileGemm:
         if not os.path.exists(rlt_dir_path):
             os.makedirs(rlt_dir_path)
         
-        file_transpose = ""
-        file_transpose += "T" if transpose_a == False else "N"
-        file_transpose += "T" if transpose_b == False else "N"
-        
         file_name = []
         object_file = []
         
+        
         for i in range(len(template_rlt)):
-            file_name.append(f"{dir_path}/cutlass_batch_gemm_{file_transpose}_{i}.cu")
-            object_file.append(f"{dir_path}/cutlass_batch_gemm_{file_transpose}_{i}")
+            file_name.append(f"{dir_path}/cutlass_batch_gemm_{file_transpose}_{i}{file_tailor}.cu")
+            object_file.append(f"{dir_path}/cutlass_batch_gemm_{file_transpose}_{i}{file_tailor}")
             
             with open(file_name[i], "w") as f:
                 f.write(template_rlt[i])
-            
+                
         self._compile(file_name, object_file)
         return object_file, rlt_dir_path
     
@@ -497,9 +549,11 @@ class ProfileGemm:
                 os.system(exec)
     
     def eval_cutlassOracle(self, transpose_a=False, transpose_b=False, input_type="float", out_type="float"):
-        object_file, rlt_dir = self._codeGen(transpose_a=transpose_a, transpose_b=transpose_b, input_type=input_type, out_type=out_type)
         
+        object_file, rlt_dir = self._codeGen(transpose_a=transpose_a, transpose_b=transpose_b, input_type=input_type, out_type=out_type)
         rlt_json = f"{rlt_dir}/{self.batch}_{self.M}_{self.N}_{self.K}.json"
+        
+        
         
         if not os.path.exists(rlt_json):
             self._run(object_file=object_file)
@@ -519,18 +573,16 @@ class ProfileGemm:
                 fastest_cutltass_split = value["split_k"]
                 break
         
-        print(f"{self.batch}, {self.M}, {self.N}, {self.K}")
+        print(f"{fastest_cutlass_tile}, {fastest_cutltass_split}")
         print(fastest_cutlass_time)
         
-        return list(fastest_cutlass_tile), int(fastest_cutltass_split)
+        return list(fastest_cutlass_tile), fastest_cutltass_split
         
         
 if __name__ == "__main__":
-    gemm = ProfileGemm(batch=1, M=64, N=64, K=64)
+    gemm = ProfileGemm(1, 512, 512, 2048, tailor=False)
     
     start = timeSec.time()
     tile, split = gemm.eval_cutlassOracle()
     end = timeSec.time()
     
-    print(end - start)
-    print(f"{tile}, {split}")

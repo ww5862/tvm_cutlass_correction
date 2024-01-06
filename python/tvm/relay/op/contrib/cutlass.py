@@ -37,6 +37,16 @@ def make_gelu_pattern(bias_out, out_dtype="float16"):
     add = is_op("add")(mul_half, is_constant() | wildcard())
     return is_op("multiply")(add, bias_out)
 
+def make_gelu_pattern_pytorch(bias_out, out_dtype="float16"):
+    mul = is_op("multiply")(bias_out, is_constant() | wildcard())
+    if out_dtype == "float16":
+        erf = is_op("cast")(is_op("erf")(is_op("cast")(mul)))
+    else:
+        erf = is_op("erf")(mul)
+    mul_half = is_op("multiply")(erf, is_constant() | wildcard())
+    add = is_op("add")(is_constant() | wildcard(), mul_half)
+    return is_op("multiply")(bias_out, add)
+
 
 def make_gemm_pattern(with_bias=True, with_act=None, out_dtype="float16"):
     """Create a pattern for dense op followed by activations."""
@@ -78,11 +88,42 @@ def make_batch_matmul_pattern_custom(with_bias=True, with_act=None, out_dtype="f
     
     assert isinstance(with_act, str) and with_act == "gelu"
     return make_gelu_pattern(batch_gemm_out, out_dtype)
-        
+
+def make_batch_matmul_pattern_pytorch(with_bias=False, with_act=None, transpose=False, out_dtype="float32"):
+    data = wildcard()
+    weight = wildcard()
+    bias = wildcard()
+    
+    broadcast_data = is_op("broadcast_to")(data)
+    reshape_data = is_op("reshape")(broadcast_data)
+    
+    if transpose == True:
+        transpose_weight = is_op("transpose")(weight)
+    else:
+        transpose_weight = weight
+    
+    broadcast_weight = is_op("broadcast_to")(transpose_weight)
+    reshape_weight = is_op("reshape")(broadcast_weight)    
+    
+    batch_gemm = is_op("nn.batch_matmul")(reshape_data, reshape_weight)
+    
+    if with_bias:
+        bias_reshape = is_op("reshape")(batch_gemm)
+        bias_squeeze = is_op("squeeze")(bias_reshape)
+        out_batch_gemm = is_op("nn.bias_add")(bias_squeeze, bias)
+    else:
+        out_batch_gemm = batch_gemm
+    
+    if with_act is None:
+        return out_batch_gemm
+    if isinstance(with_act, str) and with_act == "relu":
+        return is_op("nn.relu")(out_batch_gemm)
+    
+    assert isinstance(with_act, str) and with_act == "gelu"
+    return make_gelu_pattern_pytorch(out_batch_gemm, out_dtype)
 
 def make_batch_matmul_pattern():
     return is_op("nn.batch_matmul")(wildcard(), wildcard())
-
 
 def make_conv2d_pattern(with_bias=False, with_act=None):
     """Create a pattern for dense op followed by activations."""
@@ -113,14 +154,11 @@ def make_conv2d_pattern(with_bias=False, with_act=None):
 
     return conv2d_out
 
-
 def make_conv2d_transpose_pattern():
     return is_op("nn.conv2d_transpose")(wildcard(), wildcard())
 
-
 def make_conv2d_backward_weight_pattern():
     return is_op("nn.conv2d_backward_weight")(wildcard(), wildcard())
-
 
 def make_residual_block_pattern(tensor_op_out, binary_op="add", with_act="relu"):
     """Add pattern for residual blocks."""
@@ -145,12 +183,17 @@ def check_dtype(lhs, rhs):
 
 
 def get_root_call(call, root_op_name):
+    
     if not isinstance(call, relay.Call):
         return None
     if str(call.op.name) == root_op_name:
         return call
     return get_root_call(call.args[0], root_op_name)
 
+def get_transpose(call, root_op_name):
+    call = call.args[0] #broadcast
+    transpose = call.args[0]
+    return list(transpose.attrs.axes)
 
 def check_gemm(call):
     """Check if the given dense workload can be offloaded to CUTLASS."""
@@ -158,7 +201,6 @@ def check_gemm(call):
     lhs = dense.args[0].checked_type
     rhs = dense.args[1].checked_type
     return check_dtype(lhs, rhs)
-
 
 def check_batch_matmul(call):
     """Check if the given batch_matmul workload can be offloaded to CUTLASS."""
@@ -168,6 +210,26 @@ def check_batch_matmul(call):
     transpose_a = batch_matmul.attrs.transpose_a
     transpose_b = batch_matmul.attrs.transpose_b
     return check_dtype(lhs, rhs) and ((not transpose_a and transpose_b) or (not transpose_a and not transpose_b))
+
+def check_batch_matmul_pytorch(call):
+    matmul = get_root_call(call, "nn.batch_matmul")
+    transpose_dim = get_transpose(matmul.args[1], "transpose")
+    
+    axes_index = len(transpose_dim) - 1
+    
+    transpose_a = matmul.attrs.transpose_a
+    transpose_b = matmul.attrs.transpose_b
+    
+    if transpose_dim[axes_index - 1] - transpose_dim[axes_index] == 1:
+        return (not transpose_a) and (not transpose_b)
+    return False
+
+def check_batch_matmul_pytorch2(call):
+    matmul = get_root_call(call, "nn.batch_matmul")
+    transpose_a = matmul.attrs.transpose_a
+    transpose_b = matmul.attrs.transpose_b
+    
+    return (not transpose_a) and (not transpose_b)
 
 
 def is_depthwise_conv2d(ic, oc, groups):
@@ -249,6 +311,16 @@ def pattern_table():
     batch_matmul_gelu_fp32_pat = ("cutlass.batch_matmul_bias_gelu_fp32", make_batch_matmul_pattern_custom(True, "gelu", out_dtype="float32"), check_batch_matmul)
     batch_matmul_gelu_fp16_pat = ("cutlass.batch_matmul_bias_gelu_fp16", make_batch_matmul_pattern_custom(True, "gelu", out_dtype="float16"), check_batch_matmul)
     
+    batch_matmul_pytorch_pat_transpose = ("cutlass.batch_matmul_pytorch_transpose", make_batch_matmul_pattern_pytorch(False, None, True), check_batch_matmul_pytorch)
+    batch_matmul_bias_pytorch_pat_transpose = ("cutlass.batch_matmul_bias_pytorch_transpose", make_batch_matmul_pattern_pytorch(True, None, True), check_batch_matmul_pytorch)
+    batch_matmul_bias_relu_pytorch_pat_transpose = ("cutlass.batch_matmul_bias_relu_pytorch_transpose", make_batch_matmul_pattern_pytorch(True, "relu", True), check_batch_matmul_pytorch)
+    batch_matmul_gelu_fp32_pytorch_pat_transpose = ("cutlass.batch_matmul_bias_gelu_fp32_pytorch_transpose", make_batch_matmul_pattern_pytorch(True, "gelu", True), check_batch_matmul_pytorch)
+    
+    batch_matmul_pytorch_pat = ("cutlass.batch_matmul_pytorch", make_batch_matmul_pattern_pytorch(False, None, False), check_batch_matmul_pytorch2)
+    batch_matmul_bias_pytorch_pat = ("cutlass.batch_matmul_bias_pytorch", make_batch_matmul_pattern_pytorch(True, None, False), check_batch_matmul_pytorch2)
+    batch_matmul_bias_relu_pytorch_pat = ("cutlass.batch_matmul_bias_relu_pytorch", make_batch_matmul_pattern_pytorch(True, "relu", False), check_batch_matmul_pytorch2)
+    batch_matmul_gelu_fp32_pytorch_pat = ("cutlass.batch_matmul_bias_gelu_fp32_pytorch", make_batch_matmul_pattern_pytorch(True, "gelu", False), check_batch_matmul_pytorch2)
+    
     dense_patterns = [
         dense_bias_gelu_fp16_pat,
         dense_bias_gelu_fp32_pat,
@@ -256,6 +328,15 @@ def pattern_table():
         dense_bias_pat,
         dense_pat,
         # ("cutlass.batch_matmul", make_batch_matmul_pattern(), check_batch_matmul),
+        batch_matmul_gelu_fp32_pytorch_pat_transpose,
+        batch_matmul_bias_relu_pytorch_pat_transpose,
+        batch_matmul_bias_pytorch_pat_transpose,
+        batch_matmul_pytorch_pat_transpose,
+        batch_matmul_gelu_fp32_pytorch_pat,
+        batch_matmul_bias_relu_pytorch_pat,
+        batch_matmul_bias_pytorch_pat,
+        batch_matmul_pytorch_pat,
+        
         batch_matmul_gelu_fp16_pat,
         batch_matmul_gelu_fp32_pat,
         batch_matmul_bias_relu_pat,

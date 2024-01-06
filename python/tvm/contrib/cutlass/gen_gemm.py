@@ -273,22 +273,15 @@ class CutlassGemmProfiler:
                 ]
                 
                 alignment_constraints = [1,]
+                print(f"{int(batch_count)}, {int(M)}, {int(N)}, {int(K)}")
                 
-                gemm_profile = ProfileGemm(batch=int(batch_count), M=int(M), N=int(N), K=int(K), split_k=16)
+                gemm_profile = ProfileGemm(batch=int(batch_count), M=int(M), N=int(N), K=int(K), split_k=16, tailor=False if op_type=="cutlass.batch_matmul" else False)
                 tile, split = gemm_profile.eval_cutlassOracle(transpose_a=transpose_a, transpose_b=transpose_b)
                 
                 #set tile description here!
-                print(f"{tile}, {split}")
-                
                 block_tile = tile[0]
                 buffer_stage = tile[2][0]
-                warp_tile = [int(tile[0][0] / tile[1][0]), int(tile[0][1] / tile[1][1]), int(tile[0][2] / tile[1][2])]
-                
-                # block_tile = [128, 128, 8]
-                # buffer_stage = 2
-                # warp_tile = [4, 2, 1]
-                # split = 1
-                
+                warp_tile = [int(tile[0][0] / tile[1][0]), int(tile[0][1] / tile[1][1]), int(tile[0][2] / tile[1][2])]        
                 tile_descriptions  = [(block_tile, buffer_stage, warp_tile, split, 80, 1024),]
                 
                 description_all = [
