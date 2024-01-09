@@ -25,9276 +25,6 @@ float cutlass_strided_bathed_sgemm_0(
                                                     float,
                                                     cutlass::arch::OpClassSimt,
                                                     cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<32, 16, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 32, 8], [32, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 32, 8], [32, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_1(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<32, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 32, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 32, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_2(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<96, 4, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 32, 8], [96, 4, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 32, 8], [96, 4, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_3(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<96, 8, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 32, 8], [96, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 32, 8], [96, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_4(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<96, 16, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 32, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 32, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_5(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 32, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 32, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_6(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<8, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [8, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [8, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_7(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<16, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [16, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [16, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_8(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<16, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [16, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [16, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_9(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<32, 16, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [32, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [32, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_10(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<32, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_11(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<32, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_12(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<48, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [48, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [48, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_13(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<96, 4, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [96, 4, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [96, 4, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_14(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<96, 8, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [96, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [96, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_15(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<96, 16, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_16(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_17(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 64, 8], [96, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 64, 8], [96, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_18(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<8, 96, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 96, 8], [8, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 96, 8], [8, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_19(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<16, 96, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 96, 8], [16, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 96, 8], [16, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_20(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<32, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 96, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 96, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_21(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<32, 96, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 96, 8], [32, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 96, 8], [32, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_22(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<48, 96, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 96, 8], [48, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 96, 8], [48, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_23(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<96, 8, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 96, 8], [96, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 96, 8], [96, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_24(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<96, 16, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 96, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 96, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_25(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 96, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 96, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_26(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<96, 48, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 96, 8], [96, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 96, 8], [96, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_27(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 96, 8], [96, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 96, 8], [96, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_28(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<8, 128, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [8, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [8, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_29(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<16, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [16, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [16, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_30(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<16, 128, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [16, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [16, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_31(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<32, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_32(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<32, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_33(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<32, 128, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [32, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [32, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_34(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<48, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [48, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [48, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_35(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<48, 128, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [48, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [48, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_36(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<96, 8, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [96, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [96, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_37(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<96, 16, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_38(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_39(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [96, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [96, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_40(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 128, 8], [96, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 128, 8], [96, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_41(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 160, 8>,
-                                                    cutlass::gemm::GemmShape<8, 160, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 160, 8], [8, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 160, 8], [8, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_42(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 160, 8>,
-                                                    cutlass::gemm::GemmShape<16, 160, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 160, 8], [16, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 160, 8], [16, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_43(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 160, 8>,
-                                                    cutlass::gemm::GemmShape<32, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 160, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 160, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_44(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 160, 8>,
-                                                    cutlass::gemm::GemmShape<32, 160, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 160, 8], [32, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 160, 8], [32, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_45(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 160, 8>,
-                                                    cutlass::gemm::GemmShape<48, 160, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 160, 8], [48, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 160, 8], [48, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_46(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 160, 8>,
-                                                    cutlass::gemm::GemmShape<96, 16, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 160, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 160, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_47(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 160, 8>,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 160, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 160, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_48(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 160, 8>,
-                                                    cutlass::gemm::GemmShape<96, 80, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 160, 8], [96, 80, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 160, 8], [96, 80, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_49(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 160, 8>,
-                                                    cutlass::gemm::GemmShape<96, 160, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 160, 8], [96, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 160, 8], [96, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_50(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<8, 192, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [8, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [8, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_51(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<16, 96, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [16, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [16, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_52(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<16, 192, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [16, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [16, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_53(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<32, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_54(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<32, 96, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [32, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [32, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_55(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<32, 192, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [32, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [32, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_56(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<48, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [48, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [48, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_57(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<48, 96, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [48, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [48, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_58(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<48, 192, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [48, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [48, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_59(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<96, 16, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_60(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_61(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<96, 48, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [96, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [96, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_62(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [96, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [96, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_63(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<96, 96, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [96, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [96, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_64(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<96, 192, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 192, 8], [96, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 192, 8], [96, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_65(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 224, 8>,
-                                                    cutlass::gemm::GemmShape<8, 224, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 224, 8], [8, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 224, 8], [8, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_66(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 224, 8>,
-                                                    cutlass::gemm::GemmShape<16, 224, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 224, 8], [16, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 224, 8], [16, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_67(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 224, 8>,
-                                                    cutlass::gemm::GemmShape<32, 224, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 224, 8], [32, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 224, 8], [32, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_68(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 224, 8>,
-                                                    cutlass::gemm::GemmShape<48, 224, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 224, 8], [48, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 224, 8], [48, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_69(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 224, 8>,
-                                                    cutlass::gemm::GemmShape<96, 16, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 224, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 224, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_70(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 224, 8>,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 224, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 224, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_71(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 224, 8>,
-                                                    cutlass::gemm::GemmShape<96, 224, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 224, 8], [96, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 224, 8], [96, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_72(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<8, 256, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [8, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [8, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_73(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<16, 128, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [16, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [16, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_74(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<16, 256, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [16, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [16, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_75(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<32, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_76(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<32, 128, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [32, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [32, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_77(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<32, 256, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [32, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [32, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_78(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<48, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [48, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [48, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_79(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<48, 128, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [48, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [48, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_80(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<48, 256, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [48, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [48, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_81(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<96, 16, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [96, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_82(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<96, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [96, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_83(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<96, 64, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [96, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [96, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_84(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<96, 128, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [96, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [96, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_85(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<96, 256, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[96, 256, 8], [96, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[96, 256, 8], [96, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_86(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<128, 32, 8>,
-                                                    cutlass::gemm::GemmShape<8, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[128, 32, 8], [8, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[128, 32, 8], [8, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_87(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<128, 32, 8>,
-                                                    cutlass::gemm::GemmShape<16, 16, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[128, 32, 8], [16, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[128, 32, 8], [16, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_88(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<128, 32, 8>,
-                                                    cutlass::gemm::GemmShape<16, 32, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[128, 32, 8], [16, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[128, 32, 8], [16, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_89(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<128, 32, 8>,
-                                                    cutlass::gemm::GemmShape<32, 8, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[128, 32, 8], [32, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[128, 32, 8], [32, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_90(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
                                                     cutlass::gemm::GemmShape<128, 32, 8>,
                                                     cutlass::gemm::GemmShape<32, 16, 8>,
                                                     cutlass::gemm::GemmShape<1, 1, 1>,
@@ -9385,7 +115,7 @@ float cutlass_strided_bathed_sgemm_90(
         
 
 
-float cutlass_strided_bathed_sgemm_91(
+float cutlass_strided_bathed_sgemm_1(
     int m, int n, int k,
     float alpha, float const *A, int lda, long long int batch_stride_A,
     float const *B, int ldb, long long int batch_stride_B,
@@ -9488,110 +218,7 @@ float cutlass_strided_bathed_sgemm_91(
         
 
 
-float cutlass_strided_bathed_sgemm_92(
-    int m, int n, int k,
-    float alpha, float const *A, int lda, long long int batch_stride_A,
-    float const *B, int ldb, long long int batch_stride_B,
-    float *C, int ldc, long long int batch_stride_C,
-    float beta, int batch_count, int split_k, int warmup=0
-){
-    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
-                                                    float, cutlass::layout::ColumnMajor,
-                                                    float, cutlass::layout::RowMajor,
-                                                    float,
-                                                    cutlass::arch::OpClassSimt,
-                                                    cutlass::arch::Sm80,
-                                                    cutlass::gemm::GemmShape<128, 32, 8>,
-                                                    cutlass::gemm::GemmShape<64, 4, 8>,
-                                                    cutlass::gemm::GemmShape<1, 1, 1>,
-                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
-                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
-                                                    2,
-                                                    1,
-                                                    1,
-                                                    true,
-                                                    cutlass::arch::OpMultiplyAdd
-                                                    >;
-    
-    Gemm gemm_op;
-    
-    float total_time;
-    cudaEvent_t start, end;
-    cudaEventCreate(&start);
-    cudaEventCreate(&end);
-    
-    cudaDeviceSynchronize();
-    cudaEventRecord(start);
-    
-    for(int i = 0; i < 20; i++){
-        Gemm::Arguments arguments{
-            {m, n, k},
-            {A, lda}, batch_stride_A,
-            {B, ldb}, batch_stride_B,
-            {C, ldc}, batch_stride_C,
-            {C, ldc}, batch_stride_C,
-            {alpha, beta},
-            batch_count,
-            split_k
-        };
-        
-        size_t workspace_size = gemm_op.get_workspace_size(arguments);
-        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
-
-        gemm_op.initialize(arguments, workspace.get());
-        cutlass::Status status = gemm_op();
-        //workspace.release();
-        
-        if(status != cutlass::Status::kSuccess){
-            cudaEventDestroy(start);
-            cudaEventDestroy(end);
-            
-            std::fstream dataFile2;
-            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-            if(warmup == 0){
-                std::string json2 = "{\"dim\": [[128, 32, 8], [64, 4, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                                    + " ,\"time\": " + std::to_string(-1) + "}";
-                
-                dataFile2.open(fileName2, std::ios::app);
-                
-                dataFile2 << json2 << std::endl;
-            }
-
-            return -1;
-        }
-    }
-    
-    cudaEventRecord(end);
-    cudaEventSynchronize(end);
-    
-    cudaEventElapsedTime(&total_time, start, end);
-
-    cudaEventDestroy(start);
-    cudaEventDestroy(end);
-
-    cudaDeviceSynchronize();
-    
-    std::fstream dataFile;
-    
-    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
-                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
-    if(warmup == 0){
-        std::string json = "{\"dim\": [[128, 32, 8], [64, 4, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
-                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
-        
-        dataFile.open(fileName, std::ios::app);
-        
-        dataFile << json << std::endl;
-    }
-    
-    return total_time / 20;
-    
-}
-        
-
-
-float cutlass_strided_bathed_sgemm_93(
+float cutlass_strided_bathed_sgemm_2(
     int m, int n, int k,
     float alpha, float const *A, int lda, long long int batch_stride_A,
     float const *B, int ldb, long long int batch_stride_B,
@@ -9694,7 +321,7 @@ float cutlass_strided_bathed_sgemm_93(
         
 
 
-float cutlass_strided_bathed_sgemm_94(
+float cutlass_strided_bathed_sgemm_3(
     int m, int n, int k,
     float alpha, float const *A, int lda, long long int batch_stride_A,
     float const *B, int ldb, long long int batch_stride_B,
@@ -9797,7 +424,7 @@ float cutlass_strided_bathed_sgemm_94(
         
 
 
-float cutlass_strided_bathed_sgemm_95(
+float cutlass_strided_bathed_sgemm_4(
     int m, int n, int k,
     float alpha, float const *A, int lda, long long int batch_stride_A,
     float const *B, int ldb, long long int batch_stride_B,
@@ -9900,7 +527,7 @@ float cutlass_strided_bathed_sgemm_95(
         
 
 
-float cutlass_strided_bathed_sgemm_96(
+float cutlass_strided_bathed_sgemm_5(
     int m, int n, int k,
     float alpha, float const *A, int lda, long long int batch_stride_A,
     float const *B, int ldb, long long int batch_stride_B,
@@ -10003,7 +630,7 @@ float cutlass_strided_bathed_sgemm_96(
         
 
 
-float cutlass_strided_bathed_sgemm_97(
+float cutlass_strided_bathed_sgemm_6(
     int m, int n, int k,
     float alpha, float const *A, int lda, long long int batch_stride_A,
     float const *B, int ldb, long long int batch_stride_B,
@@ -10106,7 +733,7 @@ float cutlass_strided_bathed_sgemm_97(
         
 
 
-float cutlass_strided_bathed_sgemm_98(
+float cutlass_strided_bathed_sgemm_7(
     int m, int n, int k,
     float alpha, float const *A, int lda, long long int batch_stride_A,
     float const *B, int ldb, long long int batch_stride_B,
@@ -10209,7 +836,7 @@ float cutlass_strided_bathed_sgemm_98(
         
 
 
-float cutlass_strided_bathed_sgemm_99(
+float cutlass_strided_bathed_sgemm_8(
     int m, int n, int k,
     float alpha, float const *A, int lda, long long int batch_stride_A,
     float const *B, int ldb, long long int batch_stride_B,
@@ -10299,6 +926,9379 @@ float cutlass_strided_bathed_sgemm_99(
                             std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
     if(warmup == 0){
         std::string json = "{\"dim\": [[128, 32, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_9(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<16, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 64, 8], [16, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 64, 8], [16, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_10(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<32, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 64, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 64, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_11(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<32, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 64, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 64, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_12(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<64, 16, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 64, 8], [64, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 64, 8], [64, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_13(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<64, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 64, 8], [64, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 64, 8], [64, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_14(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<64, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 64, 8], [64, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 64, 8], [64, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_15(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<128, 8, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 64, 8], [128, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 64, 8], [128, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_16(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<128, 16, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 64, 8], [128, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 64, 8], [128, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_17(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<128, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 64, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 64, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_18(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 64, 8], [128, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 64, 8], [128, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_19(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 96, 8>,
+                                                    cutlass::gemm::GemmShape<16, 96, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 96, 8], [16, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 96, 8], [16, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_20(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 96, 8>,
+                                                    cutlass::gemm::GemmShape<32, 96, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 96, 8], [32, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 96, 8], [32, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_21(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 96, 8>,
+                                                    cutlass::gemm::GemmShape<64, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 96, 8], [64, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 96, 8], [64, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_22(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 96, 8>,
+                                                    cutlass::gemm::GemmShape<64, 48, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 96, 8], [64, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 96, 8], [64, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_23(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 96, 8>,
+                                                    cutlass::gemm::GemmShape<64, 96, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 96, 8], [64, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 96, 8], [64, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_24(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 96, 8>,
+                                                    cutlass::gemm::GemmShape<128, 16, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 96, 8], [128, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 96, 8], [128, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_25(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 96, 8>,
+                                                    cutlass::gemm::GemmShape<128, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 96, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 96, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_26(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 96, 8>,
+                                                    cutlass::gemm::GemmShape<128, 48, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 96, 8], [128, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 96, 8], [128, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_27(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 96, 8>,
+                                                    cutlass::gemm::GemmShape<128, 96, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 96, 8], [128, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 96, 8], [128, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_28(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<16, 128, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 128, 8], [16, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 128, 8], [16, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_29(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<32, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 128, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 128, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_30(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<32, 128, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 128, 8], [32, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 128, 8], [32, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_31(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<64, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 128, 8], [64, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 128, 8], [64, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_32(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<64, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 128, 8], [64, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 128, 8], [64, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_33(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<64, 128, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 128, 8], [64, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 128, 8], [64, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_34(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<128, 16, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 128, 8], [128, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 128, 8], [128, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_35(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<128, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 128, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 128, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_36(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 128, 8], [128, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 128, 8], [128, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_37(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 128, 8], [128, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 128, 8], [128, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_38(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 160, 8>,
+                                                    cutlass::gemm::GemmShape<16, 160, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 160, 8], [16, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 160, 8], [16, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_39(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 160, 8>,
+                                                    cutlass::gemm::GemmShape<32, 160, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 160, 8], [32, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 160, 8], [32, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_40(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 160, 8>,
+                                                    cutlass::gemm::GemmShape<64, 160, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 160, 8], [64, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 160, 8], [64, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_41(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 160, 8>,
+                                                    cutlass::gemm::GemmShape<128, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 160, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 160, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_42(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 160, 8>,
+                                                    cutlass::gemm::GemmShape<128, 80, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 160, 8], [128, 80, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 160, 8], [128, 80, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_43(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 160, 8>,
+                                                    cutlass::gemm::GemmShape<128, 160, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 160, 8], [128, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 160, 8], [128, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_44(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<16, 192, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [16, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [16, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_45(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<32, 96, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [32, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [32, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_46(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<32, 192, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [32, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [32, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_47(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<64, 48, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [64, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [64, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_48(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<64, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [64, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [64, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_49(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<64, 96, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [64, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [64, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_50(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<64, 192, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [64, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [64, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_51(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<128, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_52(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<128, 48, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [128, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [128, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_53(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [128, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [128, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_54(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<128, 96, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [128, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [128, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_55(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<128, 192, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 192, 8], [128, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 192, 8], [128, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_56(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 224, 8>,
+                                                    cutlass::gemm::GemmShape<16, 224, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 224, 8], [16, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 224, 8], [16, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_57(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 224, 8>,
+                                                    cutlass::gemm::GemmShape<32, 224, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 224, 8], [32, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 224, 8], [32, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_58(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 224, 8>,
+                                                    cutlass::gemm::GemmShape<64, 224, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 224, 8], [64, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 224, 8], [64, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_59(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 224, 8>,
+                                                    cutlass::gemm::GemmShape<128, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 224, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 224, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_60(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 224, 8>,
+                                                    cutlass::gemm::GemmShape<128, 112, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 224, 8], [128, 112, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 224, 8], [128, 112, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_61(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 224, 8>,
+                                                    cutlass::gemm::GemmShape<128, 224, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 224, 8], [128, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 224, 8], [128, 224, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_62(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 256, 8>,
+                                                    cutlass::gemm::GemmShape<16, 256, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 256, 8], [16, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 256, 8], [16, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_63(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 256, 8>,
+                                                    cutlass::gemm::GemmShape<32, 128, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 256, 8], [32, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 256, 8], [32, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_64(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 256, 8>,
+                                                    cutlass::gemm::GemmShape<32, 256, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 256, 8], [32, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 256, 8], [32, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_65(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 256, 8>,
+                                                    cutlass::gemm::GemmShape<64, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 256, 8], [64, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 256, 8], [64, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_66(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 256, 8>,
+                                                    cutlass::gemm::GemmShape<64, 128, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 256, 8], [64, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 256, 8], [64, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_67(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 256, 8>,
+                                                    cutlass::gemm::GemmShape<64, 256, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 256, 8], [64, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 256, 8], [64, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_68(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 256, 8>,
+                                                    cutlass::gemm::GemmShape<128, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 256, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 256, 8], [128, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_69(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 256, 8>,
+                                                    cutlass::gemm::GemmShape<128, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 256, 8], [128, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 256, 8], [128, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_70(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 256, 8>,
+                                                    cutlass::gemm::GemmShape<128, 128, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 256, 8], [128, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 256, 8], [128, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_71(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<128, 256, 8>,
+                                                    cutlass::gemm::GemmShape<128, 256, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[128, 256, 8], [128, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[128, 256, 8], [128, 256, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_72(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 32, 8>,
+                                                    cutlass::gemm::GemmShape<32, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 32, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 32, 8], [32, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_73(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 32, 8>,
+                                                    cutlass::gemm::GemmShape<160, 4, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 32, 8], [160, 4, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 32, 8], [160, 4, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_74(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 32, 8>,
+                                                    cutlass::gemm::GemmShape<160, 8, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 32, 8], [160, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 32, 8], [160, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_75(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 32, 8>,
+                                                    cutlass::gemm::GemmShape<160, 16, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 32, 8], [160, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 32, 8], [160, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_76(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 32, 8>,
+                                                    cutlass::gemm::GemmShape<160, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 32, 8], [160, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 32, 8], [160, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_77(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 64, 8>,
+                                                    cutlass::gemm::GemmShape<32, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 64, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 64, 8], [32, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_78(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 64, 8>,
+                                                    cutlass::gemm::GemmShape<160, 8, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 64, 8], [160, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 64, 8], [160, 8, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_79(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 64, 8>,
+                                                    cutlass::gemm::GemmShape<160, 16, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 64, 8], [160, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 64, 8], [160, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_80(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 64, 8>,
+                                                    cutlass::gemm::GemmShape<160, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 64, 8], [160, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 64, 8], [160, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_81(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 64, 8>,
+                                                    cutlass::gemm::GemmShape<160, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 64, 8], [160, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 64, 8], [160, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_82(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 96, 8>,
+                                                    cutlass::gemm::GemmShape<32, 96, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 96, 8], [32, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 96, 8], [32, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_83(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 96, 8>,
+                                                    cutlass::gemm::GemmShape<80, 96, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 96, 8], [80, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 96, 8], [80, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_84(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 96, 8>,
+                                                    cutlass::gemm::GemmShape<160, 16, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 96, 8], [160, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 96, 8], [160, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_85(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 96, 8>,
+                                                    cutlass::gemm::GemmShape<160, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 96, 8], [160, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 96, 8], [160, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_86(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 96, 8>,
+                                                    cutlass::gemm::GemmShape<160, 48, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 96, 8], [160, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 96, 8], [160, 48, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_87(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 96, 8>,
+                                                    cutlass::gemm::GemmShape<160, 96, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 96, 8], [160, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 96, 8], [160, 96, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_88(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 128, 8>,
+                                                    cutlass::gemm::GemmShape<32, 128, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 128, 8], [32, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 128, 8], [32, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_89(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 128, 8>,
+                                                    cutlass::gemm::GemmShape<80, 128, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 128, 8], [80, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 128, 8], [80, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_90(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 128, 8>,
+                                                    cutlass::gemm::GemmShape<160, 16, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 128, 8], [160, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 128, 8], [160, 16, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_91(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 128, 8>,
+                                                    cutlass::gemm::GemmShape<160, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 128, 8], [160, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 128, 8], [160, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_92(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 128, 8>,
+                                                    cutlass::gemm::GemmShape<160, 64, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 128, 8], [160, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 128, 8], [160, 64, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_93(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 128, 8>,
+                                                    cutlass::gemm::GemmShape<160, 128, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 128, 8], [160, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 128, 8], [160, 128, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_94(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 160, 8>,
+                                                    cutlass::gemm::GemmShape<32, 160, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 160, 8], [32, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 160, 8], [32, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_95(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 160, 8>,
+                                                    cutlass::gemm::GemmShape<80, 160, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 160, 8], [80, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 160, 8], [80, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_96(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 160, 8>,
+                                                    cutlass::gemm::GemmShape<160, 32, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 160, 8], [160, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 160, 8], [160, 32, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_97(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 160, 8>,
+                                                    cutlass::gemm::GemmShape<160, 80, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 160, 8], [160, 80, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 160, 8], [160, 80, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_98(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 160, 8>,
+                                                    cutlass::gemm::GemmShape<160, 160, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 160, 8], [160, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 160, 8], [160, 160, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                            + " ,\"time\": " + std::to_string(total_time/20) + "}";
+        
+        dataFile.open(fileName, std::ios::app);
+        
+        dataFile << json << std::endl;
+    }
+    
+    return total_time / 20;
+    
+}
+        
+
+
+float cutlass_strided_bathed_sgemm_99(
+    int m, int n, int k,
+    float alpha, float const *A, int lda, long long int batch_stride_A,
+    float const *B, int ldb, long long int batch_stride_B,
+    float *C, int ldc, long long int batch_stride_C,
+    float beta, int batch_count, int split_k, int warmup=0
+){
+    using Gemm = cutlass::gemm::device::GemmBatched<float, cutlass::layout::RowMajor,
+                                                    float, cutlass::layout::ColumnMajor,
+                                                    float, cutlass::layout::RowMajor,
+                                                    float,
+                                                    cutlass::arch::OpClassSimt,
+                                                    cutlass::arch::Sm80,
+                                                    cutlass::gemm::GemmShape<160, 192, 8>,
+                                                    cutlass::gemm::GemmShape<32, 192, 8>,
+                                                    cutlass::gemm::GemmShape<1, 1, 1>,
+                                                    cutlass::epilogue::thread::LinearCombination<float, 1, float, float>,
+                                                    cutlass::gemm::threadblock::GemmBatchedIdentityThreadblockSwizzle,
+                                                    2,
+                                                    1,
+                                                    1,
+                                                    true,
+                                                    cutlass::arch::OpMultiplyAdd
+                                                    >;
+    
+    Gemm gemm_op;
+    
+    float total_time;
+    cudaEvent_t start, end;
+    cudaEventCreate(&start);
+    cudaEventCreate(&end);
+    
+    cudaDeviceSynchronize();
+    cudaEventRecord(start);
+    
+    for(int i = 0; i < 20; i++){
+        Gemm::Arguments arguments{
+            {m, n, k},
+            {A, lda}, batch_stride_A,
+            {B, ldb}, batch_stride_B,
+            {C, ldc}, batch_stride_C,
+            {C, ldc}, batch_stride_C,
+            {alpha, beta},
+            batch_count,
+            split_k
+        };
+        
+        size_t workspace_size = gemm_op.get_workspace_size(arguments);
+        cutlass::device_memory::allocation<uint8_t> workspace(workspace_size);
+
+        gemm_op.initialize(arguments, workspace.get());
+        cutlass::Status status = gemm_op();
+        //workspace.release();
+        
+        if(status != cutlass::Status::kSuccess){
+            cudaEventDestroy(start);
+            cudaEventDestroy(end);
+            
+            std::fstream dataFile2;
+            std::string fileName2 = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                                    std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+            if(warmup == 0){
+                std::string json2 = "{\"dim\": [[160, 192, 8], [32, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
+                                    + " ,\"time\": " + std::to_string(-1) + "}";
+                
+                dataFile2.open(fileName2, std::ios::app);
+                
+                dataFile2 << json2 << std::endl;
+            }
+
+            return -1;
+        }
+    }
+    
+    cudaEventRecord(end);
+    cudaEventSynchronize(end);
+    
+    cudaEventElapsedTime(&total_time, start, end);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(end);
+
+    cudaDeviceSynchronize();
+    
+    std::fstream dataFile;
+    
+    std::string fileName = "/home/local_guest/tvm/python/tvm/contrib/cutlass/rlt_cutlass_TN/" + std::to_string(batch_count) + "_" +
+                            std::to_string(m) + "_" + std::to_string(n) + "_" + std::to_string(k) + ".json";
+    if(warmup == 0){
+        std::string json = "{\"dim\": [[160, 192, 8], [32, 192, 8], [2], [1]], \"split_k\": " + std::to_string(split_k)
                             + " ,\"time\": " + std::to_string(total_time/20) + "}";
         
         dataFile.open(fileName, std::ios::app);

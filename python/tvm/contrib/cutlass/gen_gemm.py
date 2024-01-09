@@ -275,7 +275,7 @@ class CutlassGemmProfiler:
                 alignment_constraints = [1,]
                 print(f"{int(batch_count)}, {int(M)}, {int(N)}, {int(K)}")
                 
-                gemm_profile = ProfileGemm(batch=int(batch_count), M=int(M), N=int(N), K=int(K), split_k=16, tailor=False if op_type=="cutlass.batch_matmul" else False)
+                gemm_profile = ProfileGemm(batch=int(batch_count), M=int(M), N=int(N), K=int(K), split_k=16, tailor=True if "batch_matmul" in op_type else False)
                 tile, split = gemm_profile.eval_cutlassOracle(transpose_a=transpose_a, transpose_b=transpose_b)
                 
                 #set tile description here!

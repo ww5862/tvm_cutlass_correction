@@ -220,8 +220,10 @@ def check_batch_matmul_pytorch(call):
     transpose_a = matmul.attrs.transpose_a
     transpose_b = matmul.attrs.transpose_b
     
-    if transpose_dim[axes_index - 1] - transpose_dim[axes_index] == 1:
+    if len(transpose_dim) < 3:
         return (not transpose_a) and (not transpose_b)
+    
+    
     return False
 
 def check_batch_matmul_pytorch2(call):
@@ -285,6 +287,14 @@ def check_conv2d_residual(call, binary_op):
 
     return all(x == y for (x, y) in zip(lhs.checked_type.shape, rhs.checked_type.shape))
 
+def cutlass_test():
+    data = wildcard()
+    
+    return is_op("nn.softmax")(data)
+
+def cutlass_test_check(call):
+    return True
+
 
 @register_pattern_table("cutlass")
 def pattern_table():
@@ -311,15 +321,17 @@ def pattern_table():
     batch_matmul_gelu_fp32_pat = ("cutlass.batch_matmul_bias_gelu_fp32", make_batch_matmul_pattern_custom(True, "gelu", out_dtype="float32"), check_batch_matmul)
     batch_matmul_gelu_fp16_pat = ("cutlass.batch_matmul_bias_gelu_fp16", make_batch_matmul_pattern_custom(True, "gelu", out_dtype="float16"), check_batch_matmul)
     
-    batch_matmul_pytorch_pat_transpose = ("cutlass.batch_matmul_pytorch_transpose", make_batch_matmul_pattern_pytorch(False, None, True), check_batch_matmul_pytorch)
-    batch_matmul_bias_pytorch_pat_transpose = ("cutlass.batch_matmul_bias_pytorch_transpose", make_batch_matmul_pattern_pytorch(True, None, True), check_batch_matmul_pytorch)
-    batch_matmul_bias_relu_pytorch_pat_transpose = ("cutlass.batch_matmul_bias_relu_pytorch_transpose", make_batch_matmul_pattern_pytorch(True, "relu", True), check_batch_matmul_pytorch)
-    batch_matmul_gelu_fp32_pytorch_pat_transpose = ("cutlass.batch_matmul_bias_gelu_fp32_pytorch_transpose", make_batch_matmul_pattern_pytorch(True, "gelu", True), check_batch_matmul_pytorch)
+    batch_matmul_pytorch_transpose_pat = ("cutlass.batch_matmul_pytorch_transpose", make_batch_matmul_pattern_pytorch(False, None, True), check_batch_matmul_pytorch)
+    batch_matmul_bias_pytorch_transpose_pat = ("cutlass.batch_matmul_bias_pytorch_transpose", make_batch_matmul_pattern_pytorch(True, None, True), check_batch_matmul_pytorch)
+    batch_matmul_bias_relu_pytorch_transpose_pat = ("cutlass.batch_matmul_bias_relu_pytorch_transpose", make_batch_matmul_pattern_pytorch(True, "relu", True), check_batch_matmul_pytorch)
+    batch_matmul_gelu_fp32_pytorch_transpose_pat = ("cutlass.batch_matmul_bias_gelu_fp32_pytorch_transpose", make_batch_matmul_pattern_pytorch(True, "gelu", True), check_batch_matmul_pytorch)
     
     batch_matmul_pytorch_pat = ("cutlass.batch_matmul_pytorch", make_batch_matmul_pattern_pytorch(False, None, False), check_batch_matmul_pytorch2)
     batch_matmul_bias_pytorch_pat = ("cutlass.batch_matmul_bias_pytorch", make_batch_matmul_pattern_pytorch(True, None, False), check_batch_matmul_pytorch2)
     batch_matmul_bias_relu_pytorch_pat = ("cutlass.batch_matmul_bias_relu_pytorch", make_batch_matmul_pattern_pytorch(True, "relu", False), check_batch_matmul_pytorch2)
     batch_matmul_gelu_fp32_pytorch_pat = ("cutlass.batch_matmul_bias_gelu_fp32_pytorch", make_batch_matmul_pattern_pytorch(True, "gelu", False), check_batch_matmul_pytorch2)
+    
+    softmax_test_pat = ("cutlass.softmax_test", cutlass_test(), cutlass_test_check)
     
     dense_patterns = [
         dense_bias_gelu_fp16_pat,
@@ -328,20 +340,27 @@ def pattern_table():
         dense_bias_pat,
         dense_pat,
         # ("cutlass.batch_matmul", make_batch_matmul_pattern(), check_batch_matmul),
-        batch_matmul_gelu_fp32_pytorch_pat_transpose,
-        batch_matmul_bias_relu_pytorch_pat_transpose,
-        batch_matmul_bias_pytorch_pat_transpose,
-        batch_matmul_pytorch_pat_transpose,
+        
+        #include tranpose
+        batch_matmul_gelu_fp32_pytorch_transpose_pat,
+        batch_matmul_bias_relu_pytorch_transpose_pat,
+        batch_matmul_bias_pytorch_transpose_pat,
+        batch_matmul_pytorch_transpose_pat,
+        
+        #no transpose
         batch_matmul_gelu_fp32_pytorch_pat,
         batch_matmul_bias_relu_pytorch_pat,
         batch_matmul_bias_pytorch_pat,
         batch_matmul_pytorch_pat,
         
+        #just batch matmul
         batch_matmul_gelu_fp16_pat,
         batch_matmul_gelu_fp32_pat,
         batch_matmul_bias_relu_pat,
         batch_matmul_bias_pat,
         batch_matmul_pat,
+        
+        # softmax_test_pat,
     ]
 
     conv2d_patterns = [

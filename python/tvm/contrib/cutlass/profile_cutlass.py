@@ -291,11 +291,10 @@ class ProfileGemm:
     # return option
         compile_option = []
         
-        def iswarp(shared_m, shared_n, warp_m, warp_n):
-            if((shared_m / warp_m) * (shared_n / warp_n)) > 16:
-                return False
-            
+        def iswarp(shared_m, shared_n, warp_m, warp_n):        
             if (shared_m % warp_m) != 0 or (shared_n % warp_n) != 0:
+                return False
+            if((shared_m // warp_m) * (shared_n // warp_n)) > 8:
                 return False
             
             tmp_warp = (shared_m / warp_m) * (shared_n / warp_n) * 32
@@ -501,7 +500,7 @@ class ProfileGemm:
         
         for file, object in zip(file_name, object_file):
             command_line = compile_target +  " " + file + " " + compile_option + " " + "-o " + object
-            print(command_line)
+            # print(command_line)
             
             if not os.path.exists(object):
                 os.system(command_line)
@@ -540,6 +539,7 @@ class ProfileGemm:
                 f.write(template_rlt[i])
                 
         self._compile(file_name, object_file)
+        
         return object_file, rlt_dir_path
     
     def _run(self, object_file=[]):
@@ -549,14 +549,15 @@ class ProfileGemm:
                 os.system(exec)
     
     def eval_cutlassOracle(self, transpose_a=False, transpose_b=False, input_type="float", out_type="float"):
-        
         object_file, rlt_dir = self._codeGen(transpose_a=transpose_a, transpose_b=transpose_b, input_type=input_type, out_type=out_type)
         rlt_json = f"{rlt_dir}/{self.batch}_{self.M}_{self.N}_{self.K}.json"
         
-        
-        
         if not os.path.exists(rlt_json):
             self._run(object_file=object_file)
+            
+        if self.tailor == True:
+            for file in object_file:
+                os.remove(file)
         
         rlt = []
         with open(rlt_json, "r") as f:
@@ -566,8 +567,8 @@ class ProfileGemm:
                 
         sorted_data = sorted(rlt, key=lambda x: x['time'])
         
-        for i, value in enumerate(sorted_data):
-            if value["time"] != -1:
+        for i, value in enumerate(sorted_data):    
+            if value["time"] != -1 and value["time"] != 0:
                 fastest_cutlass_time = value["time"]
                 fastest_cutlass_tile = value["dim"]
                 fastest_cutltass_split = value["split_k"]
